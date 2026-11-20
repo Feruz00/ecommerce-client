@@ -9,6 +9,10 @@ import { useAddToCart } from "../cart/hooks";
 import { useUi } from "../../context/UiContext";
 import { formatPrice } from "../../utils/cart";
 
+/* -------------------------------------------------------
+   Helpers
+------------------------------------------------------- */
+
 function getLocalizedValue(item, field, language) {
   if (!item) return "";
 
@@ -23,34 +27,51 @@ function getLocalizedValue(item, field, language) {
 
 function getVariantAttributes(variant) {
   return (
-    variant?.attributeValues || variant?.attributes || variant?.options || []
+    variant?.attributeValues ||
+    variant?.attribute_values ||
+    variant?.attributes ||
+    variant?.options ||
+    []
   );
 }
 
 function getAttributeCode(entry) {
-  return (
-    entry?.attribute?.code ||
-    entry?.definition?.code ||
-    entry?.code ||
-    entry?.attribute_code ||
-    entry?.attribute?.slug ||
-    ""
+  const attribute =
+    entry?.attribute || entry?.definition || entry?.attributeDefinition;
+
+  return String(
+    attribute?.code ||
+      attribute?.slug ||
+      attribute?.key ||
+      entry?.attribute_code ||
+      entry?.code ||
+      attribute?.id ||
+      entry?.attribute_id ||
+      "",
   );
 }
 
 function getAttributeName(entry, language) {
+  const attribute =
+    entry?.attribute || entry?.definition || entry?.attributeDefinition;
+
   return (
-    getLocalizedValue(entry?.attribute, "name", language) ||
-    getLocalizedValue(entry?.definition, "name", language) ||
+    getLocalizedValue(attribute, "name", language) ||
     getLocalizedValue(entry, "name", language) ||
-    entry?.attribute?.code ||
-    entry?.code ||
+    attribute?.code ||
+    entry?.attribute_code ||
     ""
   );
 }
 
+function getOption(entry) {
+  return (
+    entry?.option || entry?.attributeOption || entry?.attribute_option || null
+  );
+}
+
 function getOptionLabel(entry, language) {
-  const option = entry?.option || entry?.attributeOption;
+  const option = getOption(entry);
 
   return (
     getLocalizedValue(option, "name", language) ||
@@ -63,27 +84,91 @@ function getOptionLabel(entry, language) {
 }
 
 function getOptionKey(entry) {
-  return String(
+  const option = getOption(entry);
+
+  const value =
     entry?.option_id ??
-      entry?.option?.id ??
-      entry?.attribute_option_id ??
-      entry?.attributeOption?.id ??
-      entry?.value_text ??
-      entry?.display ??
-      entry?.value ??
-      "",
-  );
+    option?.id ??
+    entry?.attribute_option_id ??
+    entry?.value_text ??
+    entry?.display ??
+    entry?.value ??
+    "";
+
+  return String(value);
 }
 
 function getVariantImage(variant) {
-  return (
-    variant?.imageFile?.url ||
-    variant?.image?.url ||
+  if (!variant) return null;
+
+  const image =
+    variant?.imageFile ||
+    variant?.image_file ||
     variant?.image ||
-    variant?.images?.[0]?.url ||
-    null
-  );
+    variant?.images?.[0];
+
+  if (typeof image === "string") return image;
+
+  return image?.url || image?.path || null;
 }
+
+function getProductImages(product) {
+  if (product?.images?.length) {
+    return product.images
+      .map((image) =>
+        typeof image === "string" ? image : image?.url || image?.path,
+      )
+      .filter(Boolean);
+  }
+
+  if (product?.image) {
+    return [
+      typeof product.image === "string" ? product.image : product.image?.url,
+    ].filter(Boolean);
+  }
+
+  if (product?.primaryImage?.url) {
+    return [product.primaryImage.url];
+  }
+
+  return [];
+}
+
+function getVariantPrice(variant, product) {
+  if (
+    variant?.price !== null &&
+    variant?.price !== undefined &&
+    variant?.price !== ""
+  ) {
+    return Number(variant.price);
+  }
+
+  return Number(product?.price || 0);
+}
+
+function getVariantComparePrice(variant, product) {
+  if (
+    variant?.compare_at_price !== null &&
+    variant?.compare_at_price !== undefined &&
+    variant?.compare_at_price !== ""
+  ) {
+    return Number(variant.compare_at_price);
+  }
+
+  if (
+    variant?.compareAtPrice !== null &&
+    variant?.compareAtPrice !== undefined &&
+    variant?.compareAtPrice !== ""
+  ) {
+    return Number(variant.compareAtPrice);
+  }
+
+  return product?.compare_at_price ? Number(product.compare_at_price) : null;
+}
+
+/* -------------------------------------------------------
+   Component
+------------------------------------------------------- */
 
 export default function ProductDetail() {
   const { t, i18n } = useTranslation();
@@ -94,7 +179,9 @@ export default function ProductDetail() {
   )[0];
 
   const { data, isLoading } = useProduct(id);
+
   const addToCart = useAddToCart();
+
   const { openCart, openLogin } = useUi();
 
   const [qty, setQty] = useState(1);
@@ -105,21 +192,39 @@ export default function ProductDetail() {
   const variants = p?.variants || [];
   const attributes = p?.attributes || [];
 
-  const activeVariants = useMemo(
-    () =>
-      variants.filter(
-        (variant) =>
-          variant?.is_active !== false && variant?.isActive !== false,
-      ),
-    [variants],
-  );
+  /* -------------------------------------------------------
+     Active variants
+  ------------------------------------------------------- */
 
-  // Build all variant dimensions from the backend association.
+  const activeVariants = useMemo(() => {
+    return variants.filter(
+      (variant) => variant?.is_active !== false && variant?.isActive !== false,
+    );
+  }, [variants]);
+
+  const hasVariants = variants.length > 0;
+
+  /* -------------------------------------------------------
+     Build variant dimensions
+
+     Example:
+     Color:
+       White
+       Black
+
+     Storage:
+       128 GB
+       256 GB
+       512 GB
+  ------------------------------------------------------- */
+
   const variantDims = useMemo(() => {
     const dimensions = new Map();
 
     activeVariants.forEach((variant) => {
-      getVariantAttributes(variant).forEach((entry) => {
+      const entries = getVariantAttributes(variant);
+
+      entries.forEach((entry) => {
         const code = getAttributeCode(entry);
 
         if (!code) return;
@@ -137,14 +242,12 @@ export default function ProductDetail() {
 
         if (!key || !label) return;
 
+        const option = getOption(entry);
+
         dimensions.get(code).options.set(key, {
           key,
           label,
-          color:
-            entry?.color_hex ||
-            entry?.option?.color_hex ||
-            entry?.attributeOption?.color_hex ||
-            entry?.option?.color,
+          color: entry?.color_hex || option?.color_hex || option?.color || null,
         });
       });
     });
@@ -155,21 +258,27 @@ export default function ProductDetail() {
     }));
   }, [activeVariants, language]);
 
-  // Reset when the product changes.
+  /* -------------------------------------------------------
+     Reset selection when product changes
+  ------------------------------------------------------- */
+
   useEffect(() => {
     setSelected({});
     setQty(1);
   }, [id]);
 
-  // Select the first available variant when product data loads.
+  /* -------------------------------------------------------
+     Select first available variant automatically
+  ------------------------------------------------------- */
+
   useEffect(() => {
-    if (!activeVariants.length) {
+    if (!activeVariants.length || !variantDims.length) {
       setSelected({});
       return;
     }
 
     const firstVariant =
-      activeVariants.find((variant) => Number(variant.quantity) > 0) ||
+      activeVariants.find((variant) => Number(variant.quantity || 0) > 0) ||
       activeVariants[0];
 
     const initialSelection = {};
@@ -185,12 +294,38 @@ export default function ProductDetail() {
 
     setSelected(initialSelection);
     setQty(1);
-  }, [id, activeVariants]);
+  }, [id, activeVariants, variantDims]);
 
-  // Find the exact variant matching every selected dimension.
+  /* -------------------------------------------------------
+     Variant matching
+
+     Every dimension must match the selected option.
+  ------------------------------------------------------- */
+
+  const matchesSelection = (variant, selection) => {
+    const entries = getVariantAttributes(variant);
+
+    return variantDims.every((dimension) => {
+      const selectedValue = selection[dimension.code];
+
+      if (selectedValue === undefined || selectedValue === "") {
+        return false;
+      }
+
+      const entry = entries.find(
+        (item) => getAttributeCode(item) === dimension.code,
+      );
+
+      if (!entry) return false;
+
+      return getOptionKey(entry) === String(selectedValue);
+    });
+  };
+
   const matchedVariant = useMemo(() => {
-    if (!activeVariants.length) return null;
-    if (!variantDims.length) return null;
+    if (!activeVariants.length || !variantDims.length) {
+      return null;
+    }
 
     const allSelected = variantDims.every(
       (dimension) =>
@@ -201,19 +336,14 @@ export default function ProductDetail() {
     if (!allSelected) return null;
 
     return (
-      activeVariants.find((variant) => {
-        const entries = getVariantAttributes(variant);
-
-        return variantDims.every((dimension) => {
-          const entry = entries.find(
-            (item) => getAttributeCode(item) === dimension.code,
-          );
-
-          return entry && getOptionKey(entry) === selected[dimension.code];
-        });
-      }) || null
+      activeVariants.find((variant) => matchesSelection(variant, selected)) ||
+      null
     );
   }, [activeVariants, variantDims, selected]);
+
+  /* -------------------------------------------------------
+     Loading and not found
+  ------------------------------------------------------- */
 
   if (isLoading) {
     return (
@@ -231,39 +361,49 @@ export default function ProductDetail() {
     );
   }
 
+  /* -------------------------------------------------------
+     Product information
+  ------------------------------------------------------- */
+
   const name = getLocalizedValue(p, "name", language);
   const desc = getLocalizedValue(p, "description", language);
   const categoryName = getLocalizedValue(p.category, "name", language);
 
-  const images = p.images?.length
-    ? p.images
-    : p.image
-      ? [{ url: p.image }]
-      : [];
+  const images = getProductImages(p);
 
-  const mainImg =
-    getVariantImage(matchedVariant) || images[0]?.url || p.image || null;
+  const mainImg = getVariantImage(matchedVariant) || images[0] || null;
 
-  // Always use the selected variant's price when it has one.
-  const price =
-    matchedVariant?.price !== null && matchedVariant?.price !== undefined
-      ? Number(matchedVariant.price)
-      : Number(p.price || 0);
+  /* -------------------------------------------------------
+     Price and stock
 
-  const compare =
-    matchedVariant?.compare_at_price !== null &&
-    matchedVariant?.compare_at_price !== undefined
-      ? Number(matchedVariant.compare_at_price)
+     Variant price has priority over product price.
+  ------------------------------------------------------- */
+
+  const price = hasVariants
+    ? matchedVariant
+      ? getVariantPrice(matchedVariant, p)
+      : Number(p.price || 0)
+    : Number(p.price || 0);
+
+  const compare = hasVariants
+    ? matchedVariant
+      ? getVariantComparePrice(matchedVariant, p)
       : p.compare_at_price
         ? Number(p.compare_at_price)
-        : null;
+        : null
+    : p.compare_at_price
+      ? Number(p.compare_at_price)
+      : null;
 
-  // Variant products use variant stock, not product-level stock.
-  const stock = variants.length
-    ? Number(matchedVariant?.quantity || 0)
+  const stock = hasVariants
+    ? matchedVariant
+      ? Number(matchedVariant.quantity || 0)
+      : 0
     : Number(p.quantity || 0);
 
-  const hasVariants = variants.length > 0;
+  /* -------------------------------------------------------
+     Can add to cart?
+  ------------------------------------------------------- */
 
   const canAddToCart =
     (!hasVariants || Boolean(matchedVariant)) &&
@@ -272,33 +412,57 @@ export default function ProductDetail() {
     qty <= stock &&
     !addToCart.isPending;
 
+  /* -------------------------------------------------------
+     Check option availability
+
+     Check the complete combination, not only one attribute.
+  ------------------------------------------------------- */
+
   const isOptionAvailable = (dimensionCode, optionKey) => {
     const nextSelection = {
       ...selected,
-      [dimensionCode]: optionKey,
+      [dimensionCode]: String(optionKey),
     };
 
     return activeVariants.some((variant) => {
       const entries = getVariantAttributes(variant);
 
-      return entries.every((entry) => {
-        const code = getAttributeCode(entry);
+      return variantDims.every((dimension) => {
+        const selectedValue = nextSelection[dimension.code];
 
-        if (!nextSelection[code]) return true;
+        // This dimension has not been selected yet.
+        if (selectedValue === undefined || selectedValue === "") {
+          return true;
+        }
 
-        return getOptionKey(entry) === nextSelection[code];
+        const entry = entries.find(
+          (item) => getAttributeCode(item) === dimension.code,
+        );
+
+        return Boolean(entry) && getOptionKey(entry) === String(selectedValue);
       });
     });
   };
 
+  /* -------------------------------------------------------
+     Change selected variant option
+  ------------------------------------------------------- */
+
   const handleVariantChange = (dimensionCode, optionKey) => {
     setSelected((current) => ({
       ...current,
-      [dimensionCode]: optionKey,
+      [dimensionCode]: String(optionKey),
     }));
 
     setQty(1);
   };
+
+  /* -------------------------------------------------------
+     Add to cart
+
+     IMPORTANT:
+     Send variant_id separately.
+  ------------------------------------------------------- */
 
   const handleAdd = () => {
     if (!canAddToCart) return;
@@ -319,12 +483,20 @@ export default function ProductDetail() {
     addToCart.mutate(
       {
         product_id: p.id,
+
+        // The actual variant ID is important.
         variant_id: matchedVariant?.id || null,
-        quantity: qty,
-        selected_attributes: matchedVariant ? selectedAttributes : {},
+
+        quantity: Number(qty),
+
+        // Human-readable snapshot of the selected attributes.
+        selected_attributes: selectedAttributes,
       },
       {
-        onSuccess: () => openCart(),
+        onSuccess: () => {
+          openCart();
+        },
+
         onError: (err) => {
           if (err?.response?.status === 401) {
             openLogin();
@@ -333,6 +505,10 @@ export default function ProductDetail() {
       },
     );
   };
+
+  /* -------------------------------------------------------
+     SEO
+  ------------------------------------------------------- */
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -352,6 +528,10 @@ export default function ProductDetail() {
     },
   };
 
+  /* -------------------------------------------------------
+     Render
+  ------------------------------------------------------- */
+
   return (
     <div className="container-main py-8">
       <Seo
@@ -363,19 +543,25 @@ export default function ProductDetail() {
         jsonLd={jsonLd}
       />
 
+      {/* Breadcrumbs */}
       <nav className="mb-6 flex flex-wrap gap-2 text-sm text-slate-500">
         <Link to="/" className="hover:text-primary">
           {t("nav.home")}
         </Link>
+
         <span>/</span>
+
         <Link to="/products" className="hover:text-primary">
           {t("header.catalog")}
         </Link>
+
         <span>/</span>
+
         <span className="text-slate-800">{name}</span>
       </nav>
 
       <div className="mb-16 grid gap-8 md:grid-cols-2 lg:gap-12">
+        {/* Product image */}
         <div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white">
           {mainImg ? (
             <img
@@ -388,6 +574,7 @@ export default function ProductDetail() {
           )}
         </div>
 
+        {/* Product details */}
         <div>
           {categoryName && (
             <p className="mb-1 text-sm font-medium text-primary">
@@ -403,11 +590,13 @@ export default function ProductDetail() {
             <span className="text-amber-400">
               {"★".repeat(Math.round(p.rating_avg || 0))}
             </span>
+
             <span>
               ({p.rating_count || 0} {t("product.reviews")})
             </span>
           </div>
 
+          {/* Price */}
           <div className="mb-6 flex items-baseline gap-3">
             <span className="text-3xl font-extrabold text-slate-900">
               {formatPrice(price, language)}
@@ -424,6 +613,7 @@ export default function ProductDetail() {
             <p className="mb-6 leading-relaxed text-slate-600">{desc}</p>
           )}
 
+          {/* Variants */}
           {hasVariants && (
             <div className="mb-6 space-y-5">
               {variantDims.map((dimension) => {
@@ -435,6 +625,7 @@ export default function ProductDetail() {
                   <div key={dimension.code}>
                     <div className="mb-2 text-sm font-semibold text-slate-800">
                       {dimension.name}
+
                       {selectedOption && (
                         <span className="ml-2 font-normal text-primary">
                           {selectedOption.label}
@@ -477,9 +668,12 @@ export default function ProductDetail() {
                             {option.color && (
                               <span
                                 className="h-4 w-4 shrink-0 rounded-full border border-slate-300"
-                                style={{ backgroundColor: option.color }}
+                                style={{
+                                  backgroundColor: option.color,
+                                }}
                               />
                             )}
+
                             {option.label}
                           </button>
                         );
@@ -489,7 +683,13 @@ export default function ProductDetail() {
                 );
               })}
 
-              {!matchedVariant && (
+              {!activeVariants.length && (
+                <p className="text-sm text-red-500">
+                  Этот товар сейчас недоступен.
+                </p>
+              )}
+
+              {activeVariants.length > 0 && !matchedVariant && (
                 <p className="text-sm text-amber-600">
                   Выберите все характеристики товара.
                 </p>
@@ -501,14 +701,17 @@ export default function ProductDetail() {
                     <span className="text-xs text-slate-500">
                       Выбранный вариант
                     </span>
+
                     <span className="text-sm font-semibold text-slate-800">
                       {matchedVariant.sku || "—"}
                     </span>
                   </div>
+
                   <div className="mt-1 flex items-center justify-between gap-3">
                     <span className="text-xs text-slate-500">
                       Цена варианта
                     </span>
+
                     <span className="text-sm font-bold text-primary">
                       {formatPrice(price, language)}
                     </span>
@@ -518,6 +721,7 @@ export default function ProductDetail() {
             </div>
           )}
 
+          {/* Quantity and add to cart */}
           <div className="mb-5 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
             <div className="flex w-fit items-center overflow-hidden rounded-lg border border-slate-200">
               <button
@@ -557,12 +761,14 @@ export default function ProductDetail() {
             </button>
           </div>
 
+          {/* Stock */}
           <p className="mb-8 text-sm text-slate-500">
             {t("product.inStock")}:{" "}
             <span className="font-semibold text-slate-800">{stock}</span>{" "}
             {t("product.pieces")}
           </p>
 
+          {/* Specifications */}
           {attributes.length > 0 && (
             <div className="overflow-hidden rounded-xl border border-slate-200">
               <div className="bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800">
@@ -573,6 +779,7 @@ export default function ProductDetail() {
                 <tbody>
                   {attributes.map((attribute, index) => {
                     const attributeName = getAttributeName(attribute, language);
+
                     const attributeValue = getOptionLabel(attribute, language);
 
                     return (
@@ -583,6 +790,7 @@ export default function ProductDetail() {
                         <td className="w-1/2 px-4 py-3 text-slate-500">
                           {attributeName}
                         </td>
+
                         <td className="px-4 py-3 font-medium text-slate-800">
                           {attributeValue}
                           {attribute.unit ? ` ${attribute.unit}` : ""}
@@ -597,6 +805,7 @@ export default function ProductDetail() {
         </div>
       </div>
 
+      {/* Related products */}
       {p.related?.length > 0 && (
         <section className="mb-16">
           <h2 className="mb-5 text-xl font-bold text-slate-900">

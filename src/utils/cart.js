@@ -1,147 +1,130 @@
+/**
+ * Frontend cart helpers
+ * Place this file at: src/utils/cart.js  (or wherever your imports point)
+ */
+
 export function formatPrice(value, language = "ru") {
-  const locales = {
-    en: "en-US",
-    tm: "tk-TM",
-    ru: "ru-RU",
-  };
-
-  return (
-    Number(value || 0).toLocaleString(locales[language] || "ru-RU", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }) + " TMT"
-  );
+  const n = Number(value || 0);
+  const locale = language === "en" ? "en-US" : "ru-RU";
+  return `${n.toLocaleString(locale, { maximumFractionDigits: 2 })} TMT`;
 }
 
-export function getItemPrice(item) {
-  // The cart item's price is the authoritative unit price.
-  // The backend should return the selected variant's price here.
-  const value =
-    item?.price ??
-    item?.unit_price ??
-    item?.variant?.price ??
-    item?.product?.price ??
-    0;
-
-  return Number(value) || 0;
-}
-
-export function getItemTotal(item) {
-  return getItemPrice(item) * Number(item?.quantity || 0);
+/** Normalize any cart API response into a plain items array */
+export function getCartItems(cartData) {
+  if (!cartData) return [];
+  if (Array.isArray(cartData)) return cartData;
+  if (Array.isArray(cartData.items)) return cartData.items;
+  if (Array.isArray(cartData.data?.items)) return cartData.data.items;
+  if (Array.isArray(cartData.data?.data?.items))
+    return cartData.data.data.items;
+  return [];
 }
 
 export function getProductName(item, language = "ru") {
-  const product = item?.product || {};
+  const p = item?.product || item;
+  if (!p) return "Товар";
 
   return (
-    product?.translations?.[language]?.name ||
-    product?.translations?.en?.name ||
-    product?.translations?.ru?.name ||
-    product?.name ||
-    item?.product_name ||
+    p.translations?.[language]?.name ||
+    p.translations?.ru?.name ||
+    p.translations?.en?.name ||
+    p.translations?.tm?.name ||
+    p.name ||
+    p.sku ||
     "Товар"
   );
 }
 
-function getAttributeValues(variant) {
-  return (
-    variant?.attributeValues || variant?.attributes || variant?.options || []
-  );
-}
-
-function getTranslatedName(value, language = "ru") {
-  if (!value) return "";
-
-  if (typeof value === "string" || typeof value === "number") {
-    return String(value);
-  }
-
-  return (
-    value?.translations?.[language]?.name ||
-    value?.translations?.en?.name ||
-    value?.translations?.ru?.name ||
-    value?.name ||
-    value?.label ||
-    value?.value ||
-    value?.slug ||
-    ""
-  );
-}
-
-export function getVariantDescription(item, language = "ru") {
-  const variantAttributes = getAttributeValues(item?.variant);
-
-  if (variantAttributes.length) {
-    return variantAttributes
-      .map((entry) => {
-        const attributeName = getTranslatedName(
-          entry?.attribute || entry?.definition,
-          language,
-        );
-
-        const optionName = getTranslatedName(
-          entry?.option || entry?.attributeOption,
-          language,
-        );
-
-        const value =
-          optionName ||
-          entry?.value_text ||
-          entry?.value ||
-          entry?.display ||
-          "";
-
-        if (!value) return "";
-
-        return attributeName ? `${attributeName}: ${value}` : value;
-      })
-      .filter(Boolean)
-      .join(", ");
-  }
-
-  const selected = item?.selected_attributes;
-
-  if (!selected || typeof selected !== "object" || Array.isArray(selected)) {
-    return "";
-  }
-
-  return Object.entries(selected)
-    .filter(
-      ([key, value]) =>
-        key !== "variant_id" &&
-        value !== null &&
-        value !== undefined &&
-        value !== "",
-    )
-    .map(([key, value]) => {
-      if (typeof value === "object") {
-        value = getTranslatedName(value, language);
-      }
-
-      return `${key}: ${value}`;
-    })
-    .join(", ");
-}
-
 export function getProductImage(item) {
   return (
-    item?.variant?.imageFile?.url ||
-    item?.variant?.image?.url ||
     item?.variant?.image ||
+    item?.product?.image ||
     item?.product?.primaryImage?.url ||
     item?.product?.images?.[0]?.url ||
-    item?.product?.image ||
-    item?.image ||
     null
   );
 }
 
-export function getCartItems(response) {
-  return (
-    response?.data?.items ||
-    response?.data?.cartItems ||
-    response?.items ||
-    response?.cartItems ||
-    []
-  );
+/**
+ * Unit price – prefer the price that was stored for the chosen variant.
+ */
+export function getItemPrice(item) {
+  if (item?.unitPrice != null) return Number(item.unitPrice);
+  if (item?.variant?.price != null) return Number(item.variant.price);
+  if (item?.product?.price != null) return Number(item.product.price);
+  return 0;
+}
+
+export function getItemTotal(item) {
+  if (item?.lineTotal != null) return Number(item.lineTotal);
+  const qty = Number(item?.quantity || 1);
+  return getItemPrice(item) * qty;
+}
+
+/**
+ * Human-readable variant description from selected_attributes or variant data.
+ * Example output: "color: Black · size: XL"
+ */
+export function getVariantDescription(item, language = "ru") {
+  const attrs = item?.selected_attributes;
+  if (attrs && typeof attrs === "object") {
+    const parts = Object.entries(attrs)
+      .filter(([key, value]) => {
+        return (
+          key !== "variant_id" &&
+          value !== null &&
+          value !== undefined &&
+          value !== ""
+        );
+      })
+      .map(([key, value]) => {
+        if (typeof value === "object") {
+          return (
+            value.name ||
+            value.label ||
+            value.value ||
+            value.title ||
+            JSON.stringify(value)
+          );
+        }
+        return `${key}: ${value}`;
+      });
+
+    if (parts.length) return parts.join(" · ");
+  }
+
+  // Fallback: try attributeValues on the variant object
+  const entries =
+    item?.variant?.attributeValues ||
+    item?.variant?.attributes ||
+    item?.variant?.options ||
+    [];
+
+  if (entries.length) {
+    const parts = entries
+      .map((entry) => {
+        const name =
+          entry?.attribute?.translations?.[language]?.name ||
+          entry?.attribute?.name ||
+          entry?.attribute?.code ||
+          entry?.code ||
+          "";
+        const label =
+          entry?.option?.translations?.[language]?.name ||
+          entry?.option?.name ||
+          entry?.option?.label ||
+          entry?.value_text ||
+          entry?.value ||
+          "";
+        if (!label) return null;
+        return name ? `${name}: ${label}` : String(label);
+      })
+      .filter(Boolean);
+
+    if (parts.length) return parts.join(" · ");
+  }
+
+  // Last resort – SKU
+  if (item?.variant?.sku) return `SKU: ${item.variant.sku}`;
+  return "";
 }

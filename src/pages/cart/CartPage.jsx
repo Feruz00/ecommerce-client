@@ -1,12 +1,17 @@
-import { Link } from 'react-router-dom';
-import Seo from '../../components/Seo';
-import { useCart, useRemoveFromCart, useUpdateCartItem } from './hooks';
-import { useMe } from '../auth/hooks';
-import { useUi } from '../../context/UiContext';
-
-function formatPrice(n) {
-  return Number(n || 0).toLocaleString('ru-RU') + ' TMT';
-}
+import { Link } from "react-router-dom";
+import Seo from "../../components/Seo";
+import { useCart, useRemoveFromCart, useUpdateCartItem } from "./hooks";
+import { useMe } from "../auth/hooks";
+import { useUi } from "../../context/UiContext";
+import {
+  formatPrice,
+  getCartItems,
+  getItemPrice,
+  getItemTotal,
+  getProductName,
+  getProductImage,
+  getVariantDescription,
+} from "../../utils/cart";
 
 export default function CartPage() {
   const { data: me } = useMe();
@@ -40,10 +45,9 @@ export default function CartPage() {
     );
   }
 
-  const items = data?.data?.items || [];
+  const items = getCartItems(data);
   const subtotal =
-    data?.data?.subtotal ??
-    items.reduce((s, i) => s + Number(i.product?.price || 0) * (i.quantity || 1), 0);
+    data?.data?.subtotal ?? items.reduce((s, i) => s + getItemTotal(i), 0);
 
   if (!items.length) {
     return (
@@ -51,59 +55,110 @@ export default function CartPage() {
         <Seo title="Корзина" noindex path="/cart" />
         <div className="text-5xl mb-4">🛒</div>
         <p className="text-slate-500 mb-4">Корзина пуста</p>
-        <Link to="/products" className="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold inline-block">
+        <Link
+          to="/products"
+          className="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold inline-block"
+        >
           В каталог
         </Link>
       </div>
     );
   }
 
+  const isUpdating = updateMut.isPending || removeMut.isPending;
+
   return (
     <div className="container-main py-8 max-w-4xl">
       <Seo title="Корзина" noindex path="/cart" />
       <h1 className="text-2xl font-bold mb-6">Корзина</h1>
+
       <div className="bg-white rounded-2xl border border-slate-200 divide-y divide-slate-100 mb-6">
         {items.map((item) => {
-          const name =
-            item.product?.name ||
-            item.product?.translations?.ru?.name ||
-            item.product?.translations?.en?.name ||
-            'Товар';
-          const price = Number(item.product?.price || 0);
-          const img = item.product?.image || item.product?.primaryImage?.url;
+          const name = getProductName(item, "ru");
+          const price = getItemPrice(item);
+          const img = getProductImage(item);
+          const variantDescription = getVariantDescription(item, "ru");
+          const quantity = Number(item.quantity || 1);
+
           return (
             <div key={item.id} className="flex gap-4 p-4 items-center">
               <div className="w-20 h-20 rounded-lg bg-slate-100 overflow-hidden shrink-0">
-                {img ? <img src={img} alt="" className="w-full h-full object-cover" /> : null}
+                {img ? (
+                  <img
+                    src={img}
+                    alt={name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-2xl">
+                    📦
+                  </div>
+                )}
               </div>
+
               <div className="flex-1 min-w-0">
-                <Link to={`/products/${item.product?.slug || item.product_id}`} className="font-semibold hover:text-primary">
+                <Link
+                  to={`/products/${item.product?.slug || item.product_id}`}
+                  className="font-semibold hover:text-primary"
+                >
                   {name}
                 </Link>
-                <div className="text-sm text-slate-500 mt-1">{formatPrice(price)}</div>
+
+                {variantDescription && (
+                  <div className="text-xs text-slate-500 mt-1">
+                    {variantDescription}
+                  </div>
+                )}
+
+                {item?.variant?.sku && (
+                  <div className="text-[11px] text-slate-400 mt-0.5">
+                    SKU: {item.variant.sku}
+                  </div>
+                )}
+
+                <div className="text-sm text-slate-500 mt-1">
+                  {formatPrice(price)}
+                </div>
+
                 <div className="flex items-center gap-2 mt-2">
                   <button
                     type="button"
-                    className="w-8 h-8 border rounded-lg"
-                    onClick={() => updateMut.mutate({ id: item.id, quantity: Math.max(1, item.quantity - 1) })}
+                    disabled={quantity <= 1 || isUpdating}
+                    className="w-8 h-8 border rounded-lg disabled:opacity-40"
+                    onClick={() =>
+                      updateMut.mutate({
+                        id: item.id,
+                        quantity: Math.max(1, quantity - 1),
+                      })
+                    }
                   >
                     −
                   </button>
-                  <span className="w-8 text-center">{item.quantity}</span>
+                  <span className="w-8 text-center">{quantity}</span>
                   <button
                     type="button"
-                    className="w-8 h-8 border rounded-lg"
-                    onClick={() => updateMut.mutate({ id: item.id, quantity: item.quantity + 1 })}
+                    disabled={isUpdating}
+                    className="w-8 h-8 border rounded-lg disabled:opacity-40"
+                    onClick={() =>
+                      updateMut.mutate({
+                        id: item.id,
+                        quantity: quantity + 1,
+                      })
+                    }
                   >
                     +
                   </button>
                 </div>
               </div>
+
               <div className="text-right">
-                <div className="font-bold">{formatPrice(price * item.quantity)}</div>
+                <div className="font-bold">
+                  {formatPrice(getItemTotal(item))}
+                </div>
                 <button
                   type="button"
-                  className="text-red-500 text-sm mt-2"
+                  disabled={isUpdating}
+                  className="text-red-500 text-sm mt-2 disabled:opacity-40"
                   onClick={() => removeMut.mutate(item.id)}
                 >
                   Удалить
