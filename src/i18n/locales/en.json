@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "cart": "Cart",
+    "orders": "My Orders",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+  "home": {
+    "heroTitle": "Discover Amazing Products",
+    "heroSubtitle": "Shop the best electronics, fashion and more with fast delivery",
+    "shopNow": "Shop Now",
+    "featured": "Featured Products",
+    "categories": "Shop by Category"
+  },
+  "products": {
+    "title": "All Products",
+    "description": "Browse products and find what you need.",
+    "searchTitle": "Search: {{search}}",
+    "results": "{{count}} products found",
+    "sort": "Sort products",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: Low to High",
+    "sortPriceDesc": "Price: High to Low",
+    "sortPopular": "Most Popular",
+    "empty": "No products found",
+    "emptyDescription": "Try changing your search or filters."
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock",
+    "reviews": "Reviews",
+    "description": "Description",
+    "specifications": "Specifications",
+    "price": "Price",
+    "quantity": "Quantity",
+    "notFound": "Product not found",
+    "pieces": "pcs",
+    "related": "Related Products",
+    "chooseOptions": "Choose options",
+    "hideVariants": "Hide options",
+    "selectVariant": "Select a variant"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "checkout": "Proceed to Checkout",
+    "continue": "Continue Shopping",
+    "remove": "Remove"
+  },
+  "auth": {
+    "loginTitle": "Welcome Back",
+    "registerTitle": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone",
+    "loginBtn": "Sign In",
+    "registerBtn": "Sign Up",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "username": "Username",
+    "loginSubtitle": "Enter your username and password to access your orders",
+    "loginError": "Login failed",
+    "registerSubtitle": "Create your customer account",
+    "registerError": "Registration failed"
+  },
+  "common": {
+    "search": "Search products...",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success",
+    "currency": "TMT"
+  },
+  "footer": {
+    "description": "Modern marketplace · Fast delivery · Secure payment",
+    "shop": "Shop",
+    "allProducts": "All Products",
+    "bestSellers": "Best Sellers",
+    "language": "Language",
+    "rights": "All rights reserved."
+  },
+  "header": {
+    "catalog": "Catalog",
+    "searchButton": "Search"
+  },
+  "megaMenu": {
+    "noCategories": "No categories available",
+    "noSubcategories": "No subcategories",
+    "quickLinks": "Quick Links"
+  }
+}

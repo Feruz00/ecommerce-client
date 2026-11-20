@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "home": "Главная",
+    "products": "Товары",
+    "categories": "Категории",
+    "cart": "Корзина",
+    "orders": "Мои заказы",
+    "login": "Войти",
+    "register": "Регистрация",
+    "logout": "Выйти",
+    "profile": "Профиль"
+  },
+  "home": {
+    "heroTitle": "Откройте для себя отличные товары",
+    "heroSubtitle": "Покупайте лучшую электронику, моду и многое другое с быстрой доставкой",
+    "shopNow": "Купить сейчас",
+    "featured": "Избранные товары",
+    "categories": "По категориям"
+  },
+  "products": {
+    "title": "Все товары",
+    "description": "Просматривайте товары и находите нужное.",
+    "searchTitle": "Поиск: {{search}}",
+    "results": "Найдено товаров: {{count}}",
+    "sort": "Сортировка товаров",
+    "sortNewest": "Сначала новые",
+    "sortPriceAsc": "Сначала дешевле",
+    "sortPriceDesc": "Сначала дороже",
+    "sortPopular": "Самые популярные",
+    "empty": "Товары не найдены",
+    "emptyDescription": "Попробуйте изменить поиск или фильтры."
+  },
+  "product": {
+    "addToCart": "В корзину",
+    "buyNow": "Купить сейчас",
+    "outOfStock": "Нет в наличии",
+    "inStock": "В наличии",
+    "reviews": "Отзывы",
+    "description": "Описание",
+    "specifications": "Характеристики",
+    "price": "Цена",
+    "quantity": "Количество",
+    "notFound": "Товар не найден",
+    "pieces": "шт.",
+    "related": "Похожие товары",
+    "chooseOptions": "Выбрать варианты",
+    "hideVariants": "Скрыть варианты",
+    "selectVariant": "Выберите вариант"
+  },
+  "cart": {
+    "title": "Корзина",
+    "empty": "Ваша корзина пуста",
+    "subtotal": "Итого",
+    "checkout": "Оформить заказ",
+    "continue": "Продолжить покупки",
+    "remove": "Удалить"
+  },
+  "auth": {
+    "loginTitle": "С возвращением",
+    "registerTitle": "Создать аккаунт",
+    "email": "Email",
+    "password": "Пароль",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "phone": "Телефон",
+    "loginBtn": "Войти",
+    "registerBtn": "Зарегистрироваться",
+    "noAccount": "Нет аккаунта?",
+    "hasAccount": "Уже есть аккаунт?",
+    "username": "Имя пользователя",
+    "loginSubtitle": "Введите имя пользователя и пароль для доступа к заказам",
+    "loginError": "Не удалось войти",
+    "registerSubtitle": "Создайте аккаунт покупателя",
+    "registerError": "Не удалось зарегистрироваться"
+  },
+  "common": {
+    "search": "Поиск товаров...",
+    "loading": "Загрузка...",
+    "error": "Что-то пошло не так",
+    "success": "Успешно",
+    "currency": "TMT"
+  },
+  "footer": {
+    "description": "Современный маркетплейс · Быстрая доставка · Безопасная оплата",
+    "shop": "Магазин",
+    "allProducts": "Все товары",
+    "bestSellers": "Хиты продаж",
+    "language": "Язык",
+    "rights": "Все права защищены."
+  },
+  "header": {
+    "catalog": "Каталог",
+    "searchButton": "Найти"
+  },
+  "megaMenu": {
+    "noCategories": "Нет категорий",
+    "noSubcategories": "Нет подкатегорий",
+    "quickLinks": "Быстрый переход"
+  }
+}

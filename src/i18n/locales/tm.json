@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "home": "Baş sahypa",
+    "products": "Harytlar",
+    "categories": "Kategoriýalar",
+    "cart": "Sebet",
+    "orders": "Sargytlarym",
+    "login": "Giriş",
+    "register": "Hasap aç",
+    "logout": "Çykmak",
+    "profile": "Profil"
+  },
+  "home": {
+    "heroTitle": "Ajaýyp harytlary tapyň",
+    "heroSubtitle": "Iň gowy elektronika, moda we beýlekileri çalt eltip bermek bilen satyn alyň",
+    "shopNow": "Indi satyn al",
+    "featured": "Saýlanan harytlar",
+    "categories": "Kategoriýa boýunça"
+  },
+  "products": {
+    "title": "Ähli harytlar",
+    "description": "Harytlara göz aýlaň we gerekli harydy tapyň.",
+    "searchTitle": "Gözleg: {{search}}",
+    "results": "{{count}} haryt tapyldy",
+    "sort": "Harytlary tertiple",
+    "sortNewest": "Täzeler ilki",
+    "sortPriceAsc": "Bahasy: arzan ilki",
+    "sortPriceDesc": "Bahasy: gymmat ilki",
+    "sortPopular": "Iň meşhurlar",
+    "empty": "Haryt tapylmady",
+    "emptyDescription": "Gözlegiňizi ýa-da süzgüçleriňizi üýtgedip görüň."
+  },
+  "product": {
+    "addToCart": "Sebede goş",
+    "buyNow": "Indi satyn al",
+    "outOfStock": "Stockda ýok",
+    "inStock": "Stockda bar",
+    "reviews": "Synlar",
+    "description": "Düşündiriş",
+    "specifications": "Aýratynlyklar",
+    "price": "Baha",
+    "quantity": "Mukdar",
+    "notFound": "Haryt tapylmady",
+    "pieces": "sany",
+    "related": "Meňzeş harytlar",
+    "chooseOptions": "Görnüşleri saýla",
+    "hideVariants": "Görnüşleri gizle",
+    "selectVariant": "Görnüş saýlaň"
+  },
+  "cart": {
+    "title": "Sebet",
+    "empty": "Sebediňiz boş",
+    "subtotal": "Jemi",
+    "checkout": "Sargyt bermek",
+    "continue": "Söwdany dowam et",
+    "remove": "Aýyr"
+  },
+  "auth": {
+    "loginTitle": "Hoş geldiňiz",
+    "registerTitle": "Hasap döret",
+    "email": "Email",
+    "password": "Parol",
+    "firstName": "Ady",
+    "lastName": "Familiýasy",
+    "phone": "Telefon",
+    "loginBtn": "Girmek",
+    "registerBtn": "Hasap açmak",
+    "noAccount": "Hasabyňyz ýokmy?",
+    "hasAccount": "Hasabyňyz barmy?",
+    "username": "Ulanyjy ady",
+    "loginSubtitle": "Sargytlaryňyza girmek üçin ulanyjy adyňyzy we parolyňyzy giriziň",
+    "loginError": "Ulgama girmek başartmady",
+    "registerSubtitle": "Satyn alyjy hasabyňyzy dörediň",
+    "registerError": "Hasap döretmek başartmady"
+  },
+  "common": {
+    "search": "Haryt gözle...",
+    "loading": "Ýüklenýär...",
+    "error": "Ýalňyşlyk ýüze çykdy",
+    "success": "Üstünlikli",
+    "currency": "TMT"
+  },
+  "footer": {
+    "description": "Döwrebap söwda platformasy · Çalt eltip bermek · Howpsuz töleg",
+    "shop": "Dükan",
+    "allProducts": "Ähli harytlar",
+    "bestSellers": "Iň köp satylýanlar",
+    "language": "Dil",
+    "rights": "Ähli hukuklar goralan."
+  },
+  "header": {
+    "catalog": "Katalog",
+    "searchButton": "Gözle"
+  },
+  "megaMenu": {
+    "noCategories": "Kategoriýalar ýok",
+    "noSubcategories": "Aşaky kategoriýalar ýok",
+    "quickLinks": "Çalt geçiş"
+  }
+}
