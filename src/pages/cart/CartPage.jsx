@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 import Seo from "../../components/Seo";
 import { useCart, useRemoveFromCart, useUpdateCartItem } from "./hooks";
 import { useMe } from "../auth/hooks";
 import { useUi } from "../../context/UiContext";
+
 import {
   formatPrice,
   getCartItems,
@@ -14,80 +17,102 @@ import {
 } from "../../utils/cart";
 
 export default function CartPage() {
+  const { t, i18n } = useTranslation();
+
+  const language = i18n.resolvedLanguage || i18n.language || "en";
+
   const { data: me } = useMe();
   const { openLogin } = useUi();
+
   const { data, isLoading } = useCart();
+
   const removeMut = useRemoveFromCart();
   const updateMut = useUpdateCartItem();
 
+  const isUpdating = updateMut.isPending || removeMut.isPending;
+
+  // Authentication
   if (!me?.data?.user) {
     return (
-      <div className="container-main text-center py-24">
-        <Seo title="Корзина" noindex path="/cart" />
-        <p className="text-slate-500 mb-4">Войдите, чтобы увидеть корзину</p>
+      <div className="container-main py-24 text-center">
+        <Seo title={t("cart.title")} noindex path="/cart" />
+
+        <p className="mb-4 text-slate-500">{t("cart.loginRequired")}</p>
+
         <button
           type="button"
           onClick={openLogin}
-          className="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold"
+          className="rounded-lg bg-primary px-6 py-2.5 font-semibold text-white transition hover:bg-primary-hover"
         >
-          Войти
+          {t("auth.loginBtn")}
         </button>
       </div>
     );
   }
 
+  // Loading
   if (isLoading) {
     return (
-      <div className="container-main py-20 flex justify-center">
-        <Seo title="Корзина" noindex path="/cart" />
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="container-main flex justify-center py-20">
+        <Seo title={t("cart.title")} noindex path="/cart" />
+
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
 
   const items = getCartItems(data);
-  const subtotal =
-    data?.data?.subtotal ?? items.reduce((s, i) => s + getItemTotal(i), 0);
 
+  const subtotal =
+    data?.data?.subtotal ??
+    items.reduce((sum, item) => sum + getItemTotal(item), 0);
+
+  // Empty cart
   if (!items.length) {
     return (
-      <div className="container-main text-center py-24">
-        <Seo title="Корзина" noindex path="/cart" />
-        <div className="text-5xl mb-4">🛒</div>
-        <p className="text-slate-500 mb-4">Корзина пуста</p>
+      <div className="container-main py-24 text-center">
+        <Seo title={t("cart.title")} noindex path="/cart" />
+
+        <div className="mb-4 text-5xl">🛒</div>
+
+        <p className="mb-4 text-slate-500">{t("cart.empty")}</p>
+
         <Link
           to="/products"
-          className="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold inline-block"
+          className="inline-block rounded-lg bg-primary px-6 py-2.5 font-semibold text-white transition hover:bg-primary-hover"
         >
-          В каталог
+          {t("cart.continue")}
         </Link>
       </div>
     );
   }
 
-  const isUpdating = updateMut.isPending || removeMut.isPending;
-
   return (
-    <div className="container-main py-8 max-w-4xl">
-      <Seo title="Корзина" noindex path="/cart" />
-      <h1 className="text-2xl font-bold mb-6">Корзина</h1>
+    <div className="container-main max-w-4xl py-8">
+      <Seo title={t("cart.title")} noindex path="/cart" />
 
-      <div className="bg-white rounded-2xl border border-slate-200 divide-y divide-slate-100 mb-6">
+      <h1 className="mb-6 text-2xl font-bold">{t("cart.title")}</h1>
+
+      {/* Cart items */}
+      <div className="mb-6 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
         {items.map((item) => {
-          const name = getProductName(item, "ru");
+          const name = getProductName(item, language);
           const price = getItemPrice(item);
           const img = getProductImage(item);
-          const variantDescription = getVariantDescription(item, "ru");
+
+          const variantDescription = getVariantDescription(item, language);
+
           const quantity = Number(item.quantity || 1);
 
           return (
-            <div key={item.id} className="flex gap-4 p-4 items-center">
-              <div className="w-20 h-20 rounded-lg bg-slate-100 overflow-hidden shrink-0">
+            <div key={item.id} className="flex items-center gap-4 p-4">
+              {/* Product image */}
+              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-100">
                 {img ? (
                   <img
                     src={img}
                     alt={name}
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-2xl">
@@ -96,35 +121,38 @@ export default function CartPage() {
                 )}
               </div>
 
-              <div className="flex-1 min-w-0">
+              {/* Product information */}
+              <div className="min-w-0 flex-1">
                 <Link
                   to={`/products/${item.product?.slug || item.product_id}`}
-                  className="font-semibold hover:text-primary"
+                  className="font-semibold transition hover:text-primary"
                 >
                   {name}
                 </Link>
 
                 {variantDescription && (
-                  <div className="text-xs text-slate-500 mt-1">
+                  <div className="mt-1 text-xs text-slate-500">
                     {variantDescription}
                   </div>
                 )}
 
                 {item?.variant?.sku && (
-                  <div className="text-[11px] text-slate-400 mt-0.5">
-                    SKU: {item.variant.sku}
+                  <div className="mt-0.5 text-[11px] text-slate-400">
+                    {t("product.sku")}: {item.variant.sku}
                   </div>
                 )}
 
-                <div className="text-sm text-slate-500 mt-1">
+                <div className="mt-1 text-sm text-slate-500">
                   {formatPrice(price)}
                 </div>
 
-                <div className="flex items-center gap-2 mt-2">
+                {/* Quantity controls */}
+                <div className="mt-2 flex items-center gap-2">
                   <button
                     type="button"
                     disabled={quantity <= 1 || isUpdating}
-                    className="w-8 h-8 border rounded-lg disabled:opacity-40"
+                    aria-label={t("product.decreaseQuantity")}
+                    className="h-8 w-8 rounded-lg border border-slate-200 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                     onClick={() =>
                       updateMut.mutate({
                         id: item.id,
@@ -134,11 +162,14 @@ export default function CartPage() {
                   >
                     −
                   </button>
+
                   <span className="w-8 text-center">{quantity}</span>
+
                   <button
                     type="button"
                     disabled={isUpdating}
-                    className="w-8 h-8 border rounded-lg disabled:opacity-40"
+                    aria-label={t("product.increaseQuantity")}
+                    className="h-8 w-8 rounded-lg border border-slate-200 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                     onClick={() =>
                       updateMut.mutate({
                         id: item.id,
@@ -151,17 +182,19 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <div className="text-right">
+              {/* Price and remove */}
+              <div className="shrink-0 text-right">
                 <div className="font-bold">
                   {formatPrice(getItemTotal(item))}
                 </div>
+
                 <button
                   type="button"
                   disabled={isUpdating}
-                  className="text-red-500 text-sm mt-2 disabled:opacity-40"
+                  className="mt-2 text-sm text-red-500 transition hover:text-red-700 disabled:opacity-40"
                   onClick={() => removeMut.mutate(item.id)}
                 >
-                  Удалить
+                  {t("cart.remove")}
                 </button>
               </div>
             </div>
@@ -169,15 +202,18 @@ export default function CartPage() {
         })}
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+      {/* Cart summary */}
+      <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-6 sm:flex-row">
         <div className="text-xl font-bold">
-          Итого: <span className="text-primary">{formatPrice(subtotal)}</span>
+          {t("cart.subtotal")}:{" "}
+          <span className="text-primary">{formatPrice(subtotal)}</span>
         </div>
+
         <Link
           to="/checkout"
-          className="bg-primary hover:bg-primary-hover text-white px-8 py-3 rounded-lg font-semibold"
+          className="rounded-lg bg-primary px-8 py-3 font-semibold text-white transition hover:bg-primary-hover"
         >
-          Оформить заказ
+          {t("cart.checkout")}
         </Link>
       </div>
     </div>

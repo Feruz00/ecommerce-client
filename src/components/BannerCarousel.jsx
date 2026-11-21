@@ -1,141 +1,194 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const FALLBACK = [
   {
     id: 1,
-    tag: 'Новинка 2026',
-    title: 'Флагманские смартфоны со скидкой до 20%',
-    text: 'Рассрочка 0% на 12 месяцев и бесплатная экспресс-доставка в день заказа.',
-    link: '/products',
-    btn: 'Смотреть каталог',
-    gradient: 'from-blue-900 to-blue-500',
-    emoji: '📱',
+    key: "banner1",
+    link: "/products",
+    gradient: "from-blue-900 to-blue-500",
+    emoji: "📱",
   },
   {
     id: 2,
-    tag: 'Для работы и игр',
-    title: 'Ультрабуки нового поколения',
-    text: 'Максимальная автономность и производительность в тонком алюминиевом корпусе.',
-    link: '/products',
-    btn: 'Выбрать ноутбук',
-    gradient: 'from-slate-900 to-slate-600',
-    emoji: '💻',
+    key: "banner2",
+    link: "/products",
+    gradient: "from-slate-900 to-slate-600",
+    emoji: "💻",
   },
   {
     id: 3,
-    tag: 'Звук без границ',
-    title: 'Беспроводные наушники с шумоподавлением',
-    text: 'Погрузитесь в любимую музыку без лишнего шума.',
-    link: '/products',
-    btn: 'Перейти к покупкам',
-    gradient: 'from-violet-900 to-violet-600',
-    emoji: '🎧',
+    key: "banner3",
+    link: "/products",
+    gradient: "from-violet-900 to-violet-600",
+    emoji: "🎧",
   },
 ];
 
-function mapBanner(b, i) {
-  const title =
-    b.translations?.ru?.title ||
-    b.translations?.en?.title ||
-    b.title ||
-    FALLBACK[i % 3].title;
+function getBannerTranslation(banner, language) {
+  const translations = banner?.translations || {};
+
+  return (
+    translations[language] ||
+    translations[language.split("-")[0]] ||
+    translations.en ||
+    translations.ru ||
+    {}
+  );
+}
+
+function mapBanner(banner, index, language, t) {
+  const fallback = FALLBACK[index % FALLBACK.length];
+  const translated = getBannerTranslation(banner, language);
+
   return {
-    id: b.id,
-    tag: FALLBACK[i % 3].tag,
-    title,
-    text: FALLBACK[i % 3].text,
-    link: b.link || '/products',
-    btn: FALLBACK[i % 3].btn,
-    gradient: FALLBACK[i % 3].gradient,
-    emoji: FALLBACK[i % 3].emoji,
-    image: b.image || b.imageFile?.url,
+    id: banner.id,
+    tag: t(`home.${fallback.key}.tag`),
+    title: translated.title || banner.title || t(`home.${fallback.key}.title`),
+    text: translated.text || banner.text || t(`home.${fallback.key}.text`),
+    link: banner.link || fallback.link,
+    btn: t(`home.${fallback.key}.button`),
+    gradient: fallback.gradient,
+    emoji: fallback.emoji,
+    image: banner.image || banner.imageFile?.url,
   };
 }
 
 export default function BannerCarousel({ banners = [] }) {
-  const slides = banners.length ? banners.map(mapBanner) : FALLBACK;
+  const { t, i18n } = useTranslation();
+
+  const language = i18n.resolvedLanguage || i18n.language || "en";
+
+  const slides = banners.length
+    ? banners.map((banner, index) => mapBanner(banner, index, language, t))
+    : FALLBACK.map((slide) => ({
+        ...slide,
+        tag: t(`home.${slide.key}.tag`),
+        title: t(`home.${slide.key}.title`),
+        text: t(`home.${slide.key}.text`),
+        btn: t(`home.${slide.key}.button`),
+      }));
+
   const [current, setCurrent] = useState(0);
   const total = slides.length;
 
   const go = useCallback(
-    (i) => setCurrent(((i % total) + total) % total),
-    [total]
+    (index) => {
+      setCurrent(((index % total) + total) % total);
+    },
+    [total],
   );
 
+  // Keep the active index valid if banners change.
   useEffect(() => {
-    const t = setInterval(() => go(current + 1), 5500);
-    return () => clearInterval(t);
-  }, [current, go]);
+    setCurrent((previous) => Math.min(previous, total - 1));
+  }, [total]);
+
+  // Automatic slide rotation.
+  useEffect(() => {
+    if (total <= 1) return;
+
+    const timer = setInterval(() => {
+      setCurrent((previous) => (previous + 1) % total);
+    }, 5500);
+
+    return () => clearInterval(timer);
+  }, [total]);
 
   return (
     <section className="my-6">
-      <div className="relative rounded-2xl overflow-hidden h-[280px] sm:h-[340px] bg-slate-800">
+      <div className="relative h-[280px] overflow-hidden rounded-2xl bg-slate-800 sm:h-[340px]">
         <div
           className="flex h-full transition-transform duration-[450ms] ease-out"
-          style={{ transform: `translateX(-${current * 100}%)` }}
+          style={{
+            transform: `translateX(-${current * 100}%)`,
+          }}
         >
-          {slides.map((s) => (
+          {slides.map((slide) => (
             <div
-              key={s.id}
-              className={`min-w-full h-full flex items-center justify-between px-8 sm:px-14 bg-gradient-to-br ${s.gradient} text-white relative`}
+              key={slide.id}
+              className={`relative flex h-full min-w-full items-center justify-between bg-gradient-to-br ${slide.gradient} px-8 text-white sm:px-14`}
             >
-              {s.image && (
+              {slide.image && (
                 <img
-                  src={s.image}
+                  src={slide.image}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover opacity-30"
+                  className="absolute inset-0 h-full w-full object-cover opacity-30"
                 />
               )}
-              <div className="relative max-w-lg z-10">
-                <span className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-semibold mb-3">
-                  {s.tag}
+
+              <div className="relative z-10 max-w-lg">
+                <span className="mb-3 inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
+                  {slide.tag}
                 </span>
-                <h2 className="text-2xl sm:text-4xl font-bold leading-tight mb-3">{s.title}</h2>
-                <p className="text-sm sm:text-base opacity-90 mb-6 hidden sm:block">{s.text}</p>
+
+                <h2 className="mb-3 text-2xl font-bold leading-tight sm:text-4xl">
+                  {slide.title}
+                </h2>
+
+                <p className="mb-6 hidden text-sm opacity-90 sm:block sm:text-base">
+                  {slide.text}
+                </p>
+
                 <Link
-                  to={s.link}
-                  className="inline-block bg-white text-slate-900 px-6 py-3 rounded-lg font-semibold hover:bg-slate-100 transition"
+                  to={slide.link}
+                  className="inline-block rounded-lg bg-white px-6 py-3 font-semibold text-slate-900 transition hover:bg-slate-100"
                 >
-                  {s.btn}
+                  {slide.btn}
                 </Link>
               </div>
-              <div className="relative text-[90px] sm:text-[110px] select-none hidden md:block z-10">
-                {s.emoji}
+
+              <div className="relative z-10 hidden select-none text-[90px] md:block sm:text-[110px]">
+                {slide.emoji}
               </div>
             </div>
           ))}
         </div>
 
-        <button
-          type="button"
-          aria-label="Prev"
-          onClick={() => go(current - 1)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/85 hover:bg-white rounded-full flex items-center justify-center font-bold shadow-card text-xl"
-        >
-          ‹
-        </button>
-        <button
-          type="button"
-          aria-label="Next"
-          onClick={() => go(current + 1)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/85 hover:bg-white rounded-full flex items-center justify-center font-bold shadow-card text-xl"
-        >
-          ›
-        </button>
+        {/* Previous */}
+        {total > 1 && (
+          <button
+            type="button"
+            aria-label={t("home.previousSlide")}
+            onClick={() => go(current - 1)}
+            className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xl font-bold text-slate-900 shadow-card transition hover:bg-white"
+          >
+            ‹
+          </button>
+        )}
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => go(i)}
-              className={`h-2.5 rounded-full transition-all ${
-                i === current ? 'bg-white w-6' : 'bg-white/40 w-2.5'
-              }`}
-            />
-          ))}
-        </div>
+        {/* Next */}
+        {total > 1 && (
+          <button
+            type="button"
+            aria-label={t("home.nextSlide")}
+            onClick={() => go(current + 1)}
+            className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-xl font-bold text-slate-900 shadow-card transition hover:bg-white"
+          >
+            ›
+          </button>
+        )}
+
+        {/* Indicators */}
+        {total > 1 && (
+          <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
+            {slides.map((slide, index) => (
+              <button
+                key={slide.id}
+                type="button"
+                aria-label={t("home.goToSlide", {
+                  number: index + 1,
+                })}
+                aria-current={index === current ? "true" : undefined}
+                onClick={() => go(index)}
+                className={`h-2.5 rounded-full transition-all ${
+                  index === current ? "w-6 bg-white" : "w-2.5 bg-white/40"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

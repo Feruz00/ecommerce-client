@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 import Seo from "../../components/Seo";
 
@@ -20,6 +21,10 @@ import {
 } from "../../utils/cart";
 
 export default function CheckoutPage() {
+  const { t, i18n } = useTranslation();
+
+  const language = i18n.resolvedLanguage || i18n.language || "en";
+
   const { openLogin } = useUi();
   const queryClient = useQueryClient();
 
@@ -51,12 +56,11 @@ export default function CheckoutPage() {
     },
 
     onError: (err) => {
-      setError(err.response?.data?.message || "Ошибка оформления заказа");
+      setError(err.response?.data?.message || t("checkout.submitError"));
     },
   });
 
   const user = me?.data?.user;
-
   const items = getCartItems(cartData);
 
   const subtotal = items.reduce((sum, item) => sum + getItemTotal(item), 0);
@@ -88,27 +92,30 @@ export default function CheckoutPage() {
     });
   };
 
+  // Loading user
   if (meLoading) {
     return (
       <div className="container-main py-24 text-center">
-        <Seo title="Оформление заказа" noindex path="/checkout" />
-        <p className="text-sm text-slate-500">Загрузка...</p>
+        <Seo title={t("checkout.title")} noindex path="/checkout" />
+
+        <p className="text-sm text-slate-500">{t("common.loading")}</p>
       </div>
     );
   }
 
+  // Not authenticated
   if (!user) {
     return (
       <div className="container-main py-24 text-center">
-        <Seo title="Оформление заказа" noindex path="/checkout" />
+        <Seo title={t("checkout.title")} noindex path="/checkout" />
 
         <div className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-8">
           <div className="mb-4 text-4xl">🔐</div>
 
-          <h1 className="mb-2 text-xl font-bold">Войдите в аккаунт</h1>
+          <h1 className="mb-2 text-xl font-bold">{t("checkout.loginTitle")}</h1>
 
           <p className="mb-6 text-sm text-slate-500">
-            Для оформления заказа необходимо авторизоваться.
+            {t("checkout.loginDescription")}
           </p>
 
           <button
@@ -116,30 +123,33 @@ export default function CheckoutPage() {
             onClick={openLogin}
             className="rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-primary-hover"
           >
-            Войти
+            {t("auth.loginBtn")}
           </button>
         </div>
       </div>
     );
   }
 
+  // Successful checkout
   if (done) {
     return (
       <div className="container-main max-w-lg py-20 text-center">
-        <Seo title="Заказ оформлен" noindex path="/checkout" />
+        <Seo title={t("checkout.successTitle")} noindex path="/checkout" />
 
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-4xl text-emerald-600">
           ✓
         </div>
 
         <h1 className="mb-2 text-2xl font-bold text-slate-900">
-          Заказ оформлен!
+          {t("checkout.successTitle")}
         </h1>
 
-        <p className="mb-2 text-slate-500">Спасибо за ваш заказ.</p>
+        <p className="mb-2 text-slate-500">
+          {t("checkout.successDescription")}
+        </p>
 
         <p className="mb-8 text-sm text-slate-500">
-          Номер заказа:{" "}
+          {t("checkout.orderNumber")}:{" "}
           <strong className="text-slate-900">
             {done.order_number || done.id}
           </strong>
@@ -150,14 +160,14 @@ export default function CheckoutPage() {
             to="/products"
             className="rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-primary-hover"
           >
-            Продолжить покупки
+            {t("cart.continue")}
           </Link>
 
           <Link
             to="/orders"
             className="rounded-xl border border-slate-200 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
           >
-            Мои заказы
+            {t("nav.orders")}
           </Link>
         </div>
       </div>
@@ -166,49 +176,52 @@ export default function CheckoutPage() {
 
   return (
     <div className="container-main max-w-5xl py-8">
-      <Seo title="Оформление заказа" noindex path="/checkout" />
+      <Seo title={t("checkout.title")} noindex path="/checkout" />
 
+      {/* Page header */}
       <div className="mb-7">
         <div className="mb-2 flex items-center gap-2 text-xs text-slate-400">
-          <Link to="/" className="hover:text-primary">
-            Главная
+          <Link to="/" className="transition hover:text-primary">
+            {t("nav.home")}
           </Link>
+
           <span>/</span>
-          <Link to="/cart" className="hover:text-primary">
-            Корзина
+
+          <Link to="/cart" className="transition hover:text-primary">
+            {t("cart.title")}
           </Link>
+
           <span>/</span>
-          <span className="text-slate-700">Оформление</span>
+
+          <span className="text-slate-700">{t("checkout.breadcrumb")}</span>
         </div>
 
         <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-          Оформление заказа
+          {t("checkout.title")}
         </h1>
 
-        <p className="mt-1 text-sm text-slate-500">
-          Заполните информацию для доставки.
-        </p>
+        <p className="mt-1 text-sm text-slate-500">{t("checkout.subtitle")}</p>
       </div>
 
       {cartLoading ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center">
-          <p className="text-sm text-slate-500">Загрузка корзины...</p>
+          <p className="text-sm text-slate-500">{t("checkout.loadingCart")}</p>
         </div>
       ) : !items.length ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
           <div className="mb-4 text-4xl">🛒</div>
 
-          <h2 className="mb-2 text-lg font-bold">Корзина пуста</h2>
+          <h2 className="mb-2 text-lg font-bold">{t("cart.empty")}</h2>
 
           <p className="mb-6 text-sm text-slate-500">
-            Добавьте товары перед оформлением заказа.
+            {t("checkout.emptyDescription")}
           </p>
 
           <Link
             to="/products"
-            className="inline-block rounded-xl bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-hover"
+            className="inline-block rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-primary-hover"
           >
-            Перейти к покупкам
+            {t("cart.continue")}
           </Link>
         </div>
       ) : (
@@ -220,27 +233,29 @@ export default function CheckoutPage() {
           >
             <div>
               <h2 className="text-lg font-bold text-slate-900">
-                Адрес доставки
+                {t("checkout.shippingTitle")}
               </h2>
 
               <p className="mt-1 text-xs text-slate-400">
-                Укажите контактные данные и адрес.
+                {t("checkout.shippingDescription")}
               </p>
             </div>
 
+            {/* Address fields */}
             {[
-              ["full_name", "ФИО", "text"],
-              ["phone", "Телефон", "tel"],
-              ["city", "Город", "text"],
-              ["district", "Район", "text"],
-              ["street", "Улица, дом, квартира", "text"],
-            ].map(([key, label, type]) => (
+              ["full_name", "fullName", "text"],
+              ["phone", "phone", "tel"],
+              ["city", "city", "text"],
+              ["district", "district", "text"],
+              ["street", "street", "text"],
+            ].map(([key, translationKey, type]) => (
               <div key={key}>
                 <label
                   htmlFor={key}
                   className="mb-1.5 block text-[13px] font-semibold text-slate-700"
                 >
-                  {label}
+                  {t(`checkout.fields.${translationKey}`)}
+
                   {key !== "district" && (
                     <span className="ml-1 text-red-500">*</span>
                   )}
@@ -252,7 +267,7 @@ export default function CheckoutPage() {
                   type={type}
                   value={form[key]}
                   onChange={set(key)}
-                  placeholder={label}
+                  placeholder={t(`checkout.fields.${translationKey}`)}
                   className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none transition placeholder:text-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/10"
                 />
               </div>
@@ -260,9 +275,12 @@ export default function CheckoutPage() {
 
             {/* Payment */}
             <div className="border-t border-slate-100 pt-5">
-              <h2 className="mb-4 text-lg font-bold text-slate-900">Оплата</h2>
+              <h2 className="mb-4 text-lg font-bold text-slate-900">
+                {t("checkout.paymentTitle")}
+              </h2>
 
               <div className="space-y-2">
+                {/* Cash */}
                 <label
                   className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
                     form.payment_method === "cash"
@@ -281,14 +299,16 @@ export default function CheckoutPage() {
 
                   <div>
                     <p className="text-sm font-semibold text-slate-800">
-                      Наличными при получении
+                      {t("checkout.cashTitle")}
                     </p>
+
                     <p className="mt-0.5 text-xs text-slate-400">
-                      Оплата курьеру
+                      {t("checkout.cashDescription")}
                     </p>
                   </div>
                 </label>
 
+                {/* Card */}
                 <label
                   className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
                     form.payment_method === "card"
@@ -307,10 +327,11 @@ export default function CheckoutPage() {
 
                   <div>
                     <p className="text-sm font-semibold text-slate-800">
-                      Картой при получении
+                      {t("checkout.cardTitle")}
                     </p>
+
                     <p className="mt-0.5 text-xs text-slate-400">
-                      Оплата при доставке
+                      {t("checkout.cardDescription")}
                     </p>
                   </div>
                 </label>
@@ -323,7 +344,7 @@ export default function CheckoutPage() {
                 htmlFor="notes"
                 className="mb-1.5 block text-[13px] font-semibold text-slate-700"
               >
-                Комментарий к заказу
+                {t("checkout.notes")}
               </label>
 
               <textarea
@@ -331,23 +352,27 @@ export default function CheckoutPage() {
                 value={form.notes}
                 onChange={set("notes")}
                 rows={3}
-                placeholder="Дополнительная информация..."
+                placeholder={t("checkout.notesPlaceholder")}
                 className="w-full resize-none rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
               />
             </div>
 
+            {/* Error */}
             {error && (
               <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
                 {error}
               </div>
             )}
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={mutation.isPending || !items.length}
               className="w-full rounded-xl bg-primary py-3.5 font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {mutation.isPending ? "Оформляем заказ..." : "Подтвердить заказ"}
+              {mutation.isPending
+                ? t("checkout.submitting")
+                : t("checkout.confirmOrder")}
             </button>
           </form>
 
@@ -355,7 +380,7 @@ export default function CheckoutPage() {
           <div className="md:col-span-2">
             <div className="sticky top-24 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
               <h2 className="mb-5 text-lg font-bold text-slate-900">
-                Ваш заказ
+                {t("checkout.orderSummary")}
               </h2>
 
               <div className="mb-5 max-h-80 space-y-4 overflow-y-auto">
@@ -363,7 +388,12 @@ export default function CheckoutPage() {
                   const price = getItemPrice(item);
                   const quantity = Number(item.quantity || 0);
 
-                  const variantDescription = getVariantDescription(item, "ru");
+                  const name = getProductName(item, language);
+
+                  const variantDescription = getVariantDescription(
+                    item,
+                    language,
+                  );
 
                   return (
                     <div
@@ -372,7 +402,7 @@ export default function CheckoutPage() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-slate-800">
-                          {getProductName(item, "ru")}
+                          {name}
                         </p>
 
                         {variantDescription && (
@@ -383,7 +413,7 @@ export default function CheckoutPage() {
 
                         {item?.variant?.sku && (
                           <p className="mt-1 text-[10px] text-slate-400">
-                            SKU: {item.variant.sku}
+                            {t("product.sku")}: {item.variant.sku}
                           </p>
                         )}
 
@@ -400,9 +430,12 @@ export default function CheckoutPage() {
                 })}
               </div>
 
+              {/* Totals */}
               <div className="space-y-3 border-t border-slate-100 pt-4 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Товары</span>
+                  <span className="text-slate-500">
+                    {t("checkout.products")}
+                  </span>
 
                   <span className="font-medium text-slate-800">
                     {formatPrice(subtotal)}
@@ -410,22 +443,26 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Доставка</span>
+                  <span className="text-slate-500">
+                    {t("checkout.shipping")}
+                  </span>
 
                   <span className="font-medium text-slate-800">
-                    {shipping ? formatPrice(shipping) : "Бесплатно"}
+                    {shipping
+                      ? formatPrice(shipping)
+                      : t("checkout.freeShipping")}
                   </span>
                 </div>
 
                 <div className="flex justify-between border-t border-slate-100 pt-4 text-lg font-bold">
-                  <span>Итого</span>
+                  <span>{t("cart.subtotal")}</span>
 
                   <span className="text-primary">{formatPrice(total)}</span>
                 </div>
               </div>
 
               <p className="mt-4 text-center text-xs leading-5 text-slate-400">
-                Итоговая стоимость заказа будет подтверждена при оформлении.
+                {t("checkout.confirmationNote")}
               </p>
             </div>
           </div>

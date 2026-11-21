@@ -15,7 +15,28 @@
     "heroSubtitle": "Shop the best electronics, fashion and more with fast delivery",
     "shopNow": "Shop Now",
     "featured": "Featured Products",
-    "categories": "Shop by Category"
+    "categories": "Shop by Category",
+    "banner1": {
+      "tag": "New in 2026",
+      "title": "Flagship smartphones with up to 20% off",
+      "text": "0% installments for 12 months and free same-day express delivery.",
+      "button": "Browse Catalog"
+    },
+    "banner2": {
+      "tag": "For Work and Gaming",
+      "title": "Next-generation ultrabooks",
+      "text": "Maximum battery life and performance in a slim aluminum body.",
+      "button": "Choose a Laptop"
+    },
+    "banner3": {
+      "tag": "Sound Without Limits",
+      "title": "Wireless noise-cancelling headphones",
+      "text": "Immerse yourself in your favorite music without unwanted noise.",
+      "button": "Start Shopping"
+    },
+    "previousSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "goToSlide": "Go to slide {{number}}"
   },
   "products": {
     "title": "All Products",
@@ -45,7 +66,12 @@
     "related": "Related Products",
     "chooseOptions": "Choose options",
     "hideVariants": "Hide options",
-    "selectVariant": "Select a variant"
+    "selectVariant": "Select a variant",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "select": "Select",
+    "view": "View product",
+    "sku": "SKU"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -53,7 +79,13 @@
     "subtotal": "Subtotal",
     "checkout": "Proceed to Checkout",
     "continue": "Continue Shopping",
-    "remove": "Remove"
+    "remove": "Remove",
+    "itemCount_one": "{{count}} item",
+    "itemCount_other": "{{count}} items",
+    "emptyDescription": "Add products to continue shopping.",
+    "loadError": "Could not load your cart.",
+    "openFullCart": "View Full Cart",
+    "loginRequired": "Please sign in to view your cart."
   },
   "auth": {
     "loginTitle": "Welcome Back",
@@ -78,7 +110,8 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "success": "Success",
-    "currency": "TMT"
+    "currency": "TMT",
+    "close": "Close"
   },
   "footer": {
     "description": "Modern marketplace · Fast delivery · Secure payment",
@@ -96,5 +129,56 @@
     "noCategories": "No categories available",
     "noSubcategories": "No subcategories",
     "quickLinks": "Quick Links"
+  },
+  "filters": {
+    "title": "Filters",
+    "price": "Price",
+    "from": "From",
+    "to": "To",
+    "category": "Category",
+    "reset": "Reset",
+    "yes": "Yes",
+    "availability": "Availability",
+    "featuredOnly": "Featured products only",
+    "apply": "Apply filters",
+    "clear": "Clear filters",
+    "noCategories": "No categories available",
+    "featured": "Featured products"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "breadcrumb": "Checkout",
+    "subtitle": "Enter your information for delivery.",
+    "loginTitle": "Sign in to your account",
+    "loginDescription": "You need to sign in before placing an order.",
+    "loadingCart": "Loading cart...",
+    "emptyDescription": "Add products to your cart before checkout.",
+    "shippingTitle": "Shipping Address",
+    "shippingDescription": "Enter your contact information and delivery address.",
+    "fields": {
+      "fullName": "Full Name",
+      "phone": "Phone",
+      "city": "City",
+      "district": "District",
+      "street": "Street, building, apartment"
+    },
+    "paymentTitle": "Payment",
+    "cashTitle": "Cash on Delivery",
+    "cashDescription": "Pay the courier",
+    "cardTitle": "Card on Delivery",
+    "cardDescription": "Pay when your order is delivered",
+    "notes": "Order Notes",
+    "notesPlaceholder": "Additional information...",
+    "submitError": "Failed to place your order.",
+    "submitting": "Placing order...",
+    "confirmOrder": "Confirm Order",
+    "orderSummary": "Your Order",
+    "products": "Products",
+    "shipping": "Shipping",
+    "freeShipping": "Free",
+    "confirmationNote": "The final order cost will be confirmed when your order is processed.",
+    "successTitle": "Order Placed Successfully!",
+    "successDescription": "Thank you for your order.",
+    "orderNumber": "Order Number"
   }
 }

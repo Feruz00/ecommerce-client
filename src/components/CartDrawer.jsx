@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { useUi } from "../context/UiContext";
 
@@ -19,6 +20,7 @@ import {
 } from "../utils/cart";
 
 export default function CartDrawer() {
+  const { t, i18n } = useTranslation();
   const { cartOpen, closeCart } = useUi();
 
   const { data, isLoading, isError } = useCart();
@@ -34,6 +36,8 @@ export default function CartDrawer() {
 
   const isUpdating = updateMut.isPending || removeMut.isPending;
 
+  const language = i18n.resolvedLanguage || i18n.language || "en";
+
   return (
     <div
       className="fixed inset-0 z-[1000] flex justify-end bg-slate-900/50 backdrop-blur-[2px]"
@@ -46,17 +50,19 @@ export default function CartDrawer() {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">Корзина</h3>
+            <h3 className="text-lg font-bold text-slate-900">
+              {t("cart.title")}
+            </h3>
 
             <p className="mt-0.5 text-xs text-slate-400">
-              {items.length} товаров
+              {t("cart.itemCount", { count: items.length })}
             </p>
           </div>
 
           <button
             type="button"
             onClick={closeCart}
-            aria-label="Закрыть корзину"
+            aria-label={t("common.close")}
             className="flex h-9 w-9 items-center justify-center rounded-full text-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
             ×
@@ -69,15 +75,13 @@ export default function CartDrawer() {
             <div className="py-12 text-center">
               <div className="mx-auto mb-3 h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-primary" />
 
-              <p className="text-sm text-slate-500">Загрузка корзины...</p>
+              <p className="text-sm text-slate-500">{t("common.loading")}</p>
             </div>
           )}
 
           {isError && (
             <div className="py-12 text-center">
-              <p className="text-sm text-red-500">
-                Не удалось загрузить корзину.
-              </p>
+              <p className="text-sm text-red-500">{t("cart.loadError")}</p>
             </div>
           )}
 
@@ -85,10 +89,12 @@ export default function CartDrawer() {
             <div className="py-16 text-center">
               <div className="mb-4 text-5xl">🛒</div>
 
-              <h4 className="font-semibold text-slate-800">Корзина пуста</h4>
+              <h4 className="font-semibold text-slate-800">
+                {t("cart.empty")}
+              </h4>
 
               <p className="mt-2 text-sm text-slate-400">
-                Добавьте товары, чтобы продолжить покупки.
+                {t("cart.emptyDescription")}
               </p>
 
               <Link
@@ -96,7 +102,7 @@ export default function CartDrawer() {
                 onClick={closeCart}
                 className="mt-5 inline-block rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
               >
-                Перейти к покупкам
+                {t("cart.continue")}
               </Link>
             </div>
           )}
@@ -104,12 +110,12 @@ export default function CartDrawer() {
           {!isLoading &&
             !isError &&
             items.map((item) => {
-              const name = getProductName(item, "ru");
+              const name = getProductName(item, language);
               const price = getItemPrice(item);
               const quantity = Number(item.quantity || 1);
               const image = getProductImage(item);
 
-              const variantDescription = getVariantDescription(item, "ru");
+              const variantDescription = getVariantDescription(item, language);
 
               return (
                 <div
@@ -143,7 +149,7 @@ export default function CartDrawer() {
 
                     {item?.variant?.sku && (
                       <p className="mt-1 text-[10px] text-slate-400">
-                        SKU: {item.variant.sku}
+                        {t("product.sku")}: {item.variant.sku}
                       </p>
                     )}
 
@@ -156,6 +162,7 @@ export default function CartDrawer() {
                       <button
                         type="button"
                         disabled={quantity <= 1 || isUpdating}
+                        aria-label={t("product.decreaseQuantity")}
                         onClick={() =>
                           updateMut.mutate({
                             id: item.id,
@@ -174,6 +181,7 @@ export default function CartDrawer() {
                       <button
                         type="button"
                         disabled={isUpdating}
+                        aria-label={t("product.increaseQuantity")}
                         onClick={() =>
                           updateMut.mutate({
                             id: item.id,
@@ -199,7 +207,7 @@ export default function CartDrawer() {
                       onClick={() => removeMut.mutate(item.id)}
                       className="text-xs font-medium text-red-400 transition hover:text-red-600 disabled:opacity-40"
                     >
-                      Удалить
+                      {t("cart.remove")}
                     </button>
                   </div>
                 </div>
@@ -211,7 +219,9 @@ export default function CartDrawer() {
         {!isLoading && !isError && items.length > 0 && (
           <div className="border-t border-slate-200 bg-white px-6 py-5">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-slate-500">Итого:</span>
+              <span className="text-sm text-slate-500">
+                {t("cart.subtotal")}
+              </span>
 
               <span className="text-xl font-bold text-slate-900">
                 {formatPrice(total)}
@@ -223,7 +233,7 @@ export default function CartDrawer() {
               onClick={closeCart}
               className="block w-full rounded-xl bg-primary py-3.5 text-center font-semibold text-white transition hover:bg-primary-hover"
             >
-              Оформить заказ
+              {t("cart.checkout")}
             </Link>
 
             <Link
@@ -231,7 +241,7 @@ export default function CartDrawer() {
               onClick={closeCart}
               className="mt-3 block w-full text-center text-sm font-medium text-slate-500 transition hover:text-primary"
             >
-              Открыть корзину
+              {t("cart.openFullCart")}
             </Link>
           </div>
         )}

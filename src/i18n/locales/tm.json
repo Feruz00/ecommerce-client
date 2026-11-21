@@ -15,7 +15,28 @@
     "heroSubtitle": "Iň gowy elektronika, moda we beýlekileri çalt eltip bermek bilen satyn alyň",
     "shopNow": "Indi satyn al",
     "featured": "Saýlanan harytlar",
-    "categories": "Kategoriýa boýunça"
+    "categories": "Kategoriýa boýunça",
+    "banner1": {
+      "tag": "2026-njy ýylyň täzeligi",
+      "title": "20%-e çenli arzanladyşly flagman smartfonlar",
+      "text": "12 aý möhlet bilen 0% bölekleýin töleg we sargyt edilen gününde mugt çalt eltip bermek.",
+      "button": "Katalogy görmek"
+    },
+    "banner2": {
+      "tag": "Iş we oýun üçin",
+      "title": "Täze nesil ultrabuklar",
+      "text": "Inçe alýumin korpusynda ýokary öndürijilik we uzak wagt işleýän batareýa.",
+      "button": "Noutbuk saýlamak"
+    },
+    "banner3": {
+      "tag": "Çäksiz ses",
+      "title": "Şowhuny peseldýän simsiz gulaklyklar",
+      "text": "Artykmaç şowhunsyz halaýan aýdym-sazlaryňyzy diňläň.",
+      "button": "Söwda etmäge geçmek"
+    },
+    "previousSlide": "Öňki slaýd",
+    "nextSlide": "Indiki slaýd",
+    "goToSlide": "{{number}}-nji slaýda geçmek"
   },
   "products": {
     "title": "Ähli harytlar",
@@ -45,7 +66,13 @@
     "related": "Meňzeş harytlar",
     "chooseOptions": "Görnüşleri saýla",
     "hideVariants": "Görnüşleri gizle",
-    "selectVariant": "Görnüş saýlaň"
+    "selectVariant": "Görnüş saýlaň",
+    "decreaseQuantity": "Mukdary azaltmak",
+    "increaseQuantity": "Mukdary köpeltmek",
+    "featured": "Meşhur harytlar",
+    "select": "Saýla",
+    "view": "Harydy görmek",
+    "sku": "Artikul"
   },
   "cart": {
     "title": "Sebet",
@@ -53,7 +80,13 @@
     "subtotal": "Jemi",
     "checkout": "Sargyt bermek",
     "continue": "Söwdany dowam et",
-    "remove": "Aýyr"
+    "remove": "Aýyr",
+    "itemCount_one": "{{count}} haryt",
+    "itemCount_other": "{{count}} haryt",
+    "emptyDescription": "Söwda etmegi dowam etdirmek üçin harytlary goşuň.",
+    "loadError": "Sebet ýüklenmedi.",
+    "openFullCart": "Sebedi aç",
+    "loginRequired": "Sebedi görmek üçin ulgama giriň."
   },
   "auth": {
     "loginTitle": "Hoş geldiňiz",
@@ -78,7 +111,8 @@
     "loading": "Ýüklenýär...",
     "error": "Ýalňyşlyk ýüze çykdy",
     "success": "Üstünlikli",
-    "currency": "TMT"
+    "currency": "TMT",
+    "close": "Ýap"
   },
   "footer": {
     "description": "Döwrebap söwda platformasy · Çalt eltip bermek · Howpsuz töleg",
@@ -96,5 +130,55 @@
     "noCategories": "Kategoriýalar ýok",
     "noSubcategories": "Aşaky kategoriýalar ýok",
     "quickLinks": "Çalt geçiş"
+  },
+  "filters": {
+    "title": "Süzgüçler",
+    "price": "Bahasy",
+    "from": "Başlangyç",
+    "to": "Çenli",
+    "category": "Kategoriýa",
+    "reset": "Arassalamak",
+    "yes": "Hawa",
+    "availability": "Harydyň elýeterliligi",
+    "featuredOnly": "Diňe meşhur harytlar",
+    "apply": "Süzgüçleri ulanmak",
+    "clear": "Süzgüçleri arassalamak",
+    "noCategories": "Kategoriýalar ýok"
+  },
+  "checkout": {
+    "title": "Sargydy resmileşdirmek",
+    "breadcrumb": "Resmileşdirmek",
+    "subtitle": "Eltip bermek üçin maglumatlaryňyzy dolduryň.",
+    "loginTitle": "Hasabyňyza giriň",
+    "loginDescription": "Sargyt etmek üçin ulgama girmeli.",
+    "loadingCart": "Sebet ýüklenýär...",
+    "emptyDescription": "Sargydy resmileşdirmezden öň sebede haryt goşuň.",
+    "shippingTitle": "Eltip bermegiň salgysy",
+    "shippingDescription": "Habarlaşmak üçin maglumatlaryňyzy we salgyňyzy giriziň.",
+    "fields": {
+      "fullName": "Doly ady",
+      "phone": "Telefon",
+      "city": "Şäher",
+      "district": "Etrap",
+      "street": "Köçe, jaý, öý"
+    },
+    "paymentTitle": "Töleg",
+    "cashTitle": "Alanyňyzda nagt töleg",
+    "cashDescription": "Kurýere töleg",
+    "cardTitle": "Alanyňyzda kart bilen töleg",
+    "cardDescription": "Eltip berlende töleg",
+    "notes": "Sargyt barada bellik",
+    "notesPlaceholder": "Goşmaça maglumat...",
+    "submitError": "Sargydy resmileşdirmek başartmady.",
+    "submitting": "Sargyt resmileşdirilýär...",
+    "confirmOrder": "Sargydy tassyklamak",
+    "orderSummary": "Siziň sargydyňyz",
+    "products": "Harytlar",
+    "shipping": "Eltip bermek",
+    "freeShipping": "Mugt",
+    "confirmationNote": "Sargydyň soňky bahasy resmileşdirilende tassyklanar.",
+    "successTitle": "Sargyt üstünlikli resmileşdirildi!",
+    "successDescription": "Sargydyňyz üçin sag boluň.",
+    "orderNumber": "Sargyt belgisi"
   }
 }
