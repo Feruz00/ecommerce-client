@@ -8,9 +8,18 @@
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
-    "profile": "Profile"
+    "profile": "Profile",
+    "myOrders": "My Orders"
   },
   "home": {
+    "seoTitle": "Home",
+    "seoDescription": "TechStore — smartphones, laptops, audio equipment and accessories. Delivery and warranty.",
+    "popularProducts": "Popular products",
+    "sortNewest": "Newest first",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
+    "sortPopular": "Most popular",
+    "noProducts": "No products found",
     "heroTitle": "Discover Amazing Products",
     "heroSubtitle": "Shop the best electronics, fashion and more with fast delivery",
     "shopNow": "Shop Now",
@@ -111,7 +120,9 @@
     "error": "Something went wrong",
     "success": "Success",
     "currency": "TMT",
-    "close": "Close"
+    "close": "Close",
+    "retry": "Повторить",
+    "previous": "Назад"
   },
   "footer": {
     "description": "Modern marketplace · Fast delivery · Secure payment",
@@ -179,6 +190,65 @@
     "confirmationNote": "The final order cost will be confirmed when your order is processed.",
     "successTitle": "Order Placed Successfully!",
     "successDescription": "Thank you for your order.",
-    "orderNumber": "Order Number"
+    "orderNumber": "Order Number",
+    "deliveryMethodTitle": "Receiving method",
+    "deliveryTitle": "Home delivery",
+    "deliveryDescription": "Your order will be delivered to your address.",
+    "pickupTitle": "Store pickup",
+    "pickupDescription": "You can collect your order directly from our store.",
+    "contactTitle": "Contact information",
+    "contactDescription": "Please provide your name and phone number."
+  },
+  "orders": {
+    "seoTitle": "My Orders",
+    "seoDescription": "View your orders and track their status.",
+    "title": "My Orders",
+    "subtitle": "View your order history and track your purchases.",
+    "all": "All orders",
+    "orderNumber": "Order number",
+    "orderDetails": "Order details",
+    "viewDetails": "View details",
+    "products": "Products",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "shippingCost": "Shipping",
+    "discount": "Discount",
+    "deliveryMethod": "Delivery method",
+    "paymentMethod": "Payment method",
+    "shippingInformation": "Shipping information",
+    "paymentInformation": "Payment information",
+    "customerName": "Customer name",
+    "phone": "Phone",
+    "address": "Address",
+    "delivery": "Delivery",
+    "pickup": "Store pickup",
+    "orderNote": "Order note",
+    "noPaymentInformation": "No payment information available.",
+    "emptyTitle": "You haven't placed any orders yet",
+    "emptyDescription": "Your orders will appear here after you make your first purchase.",
+    "startShopping": "Start shopping",
+    "loadError": "Unable to load your orders. Please try again.",
+    "detailsError": "Unable to load order details.",
+    "ordersFound": "{{count}} orders found",
+    "moreProducts": "+ {{count}} more products",
+    "pageOf": "Page {{page}} of {{total}}",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "paymentMethods": {
+      "cash": "Cash",
+      "card": "Card"
+    },
+    "paymentStatuses": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    }
   }
 }

@@ -32,8 +32,10 @@ export default function Header() {
   const [userOpen, setUserOpen] = useState(false);
 
   const catalogRef = useRef(null);
+  const userRef = useRef(null);
 
   const user = meData?.data?.user;
+
   const cartCount =
     cartData?.data?.itemCount ?? cartData?.data?.items?.length ?? 0;
 
@@ -49,11 +51,15 @@ export default function Header() {
     localStorage.setItem("lang", lang);
   };
 
-  // Close catalog when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const onDoc = (e) => {
       if (catalogRef.current && !catalogRef.current.contains(e.target)) {
         closeCatalog();
+      }
+
+      if (userRef.current && !userRef.current.contains(e.target)) {
+        setUserOpen(false);
       }
     };
 
@@ -73,6 +79,7 @@ export default function Header() {
     if (!value) return;
 
     navigate(`/products?search=${encodeURIComponent(value)}`);
+    closeCatalog();
   };
 
   // Logout
@@ -81,99 +88,178 @@ export default function Header() {
     logoutMutation.mutate();
   };
 
+  // Catalog toggle
+  const handleCatalogToggle = (e) => {
+    e.stopPropagation();
+    toggleCatalog();
+  };
+
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
-      <div className="container-main flex items-center justify-between h-[72px] gap-5">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="text-2xl font-extrabold text-primary tracking-tight shrink-0"
-        >
-          TECHSTORE
-        </Link>
-
-        {/* Catalog */}
-        <div className="relative hidden md:block" ref={catalogRef}>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleCatalog();
-            }}
-            aria-expanded={catalogOpen}
-            className="bg-primary hover:bg-primary-hover text-white px-[18px] py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-colors"
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
+      <div className="container-main">
+        {/* Main header row */}
+        <div className="flex min-h-[64px] items-center justify-between gap-2 sm:min-h-[72px] sm:gap-4">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="shrink-0 text-xl font-extrabold tracking-tight text-primary sm:text-2xl"
           >
-            <span>☰</span>
-            <span>{t("header.catalog")}</span>
-          </button>
+            TECHSTORE
+          </Link>
 
-          <MegaMenu
-            open={catalogOpen}
-            categories={categories}
-            onClose={closeCatalog}
-            onSelect={() => setCatalogOpen(false)}
-          />
-        </div>
+          {/* Desktop catalog */}
+          <div className="relative hidden shrink-0 md:block" ref={catalogRef}>
+            <button
+              type="button"
+              onClick={handleCatalogToggle}
+              aria-expanded={catalogOpen}
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-semibold text-white transition-colors hover:bg-primary-hover"
+            >
+              <span>☰</span>
+              <span>{t("header.catalog")}</span>
+            </button>
 
-        {/* Search */}
-        <form
-          onSubmit={onSearch}
-          className="flex-1 max-w-[560px] relative hidden sm:block"
-        >
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t("common.search")}
-            aria-label={t("common.search")}
-            className="w-full py-[11px] px-4 border-2 border-slate-200 rounded-lg text-sm outline-none focus:border-primary transition-colors"
-          />
-
-          <button
-            type="submit"
-            className="absolute right-1 top-1 bottom-1 bg-primary hover:bg-primary-hover text-white px-4 rounded-md font-medium text-sm"
-          >
-            {t("header.searchButton")}
-          </button>
-        </form>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Language */}
-          <div className="hidden lg:flex gap-1">
-            {["en", "tm", "ru"].map((lang) => {
-              const isActive = currentLanguage?.startsWith(lang);
-
-              return (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => changeLanguage(lang)}
-                  aria-label={`${t("footer.language")}: ${lang.toUpperCase()}`}
-                  aria-pressed={isActive}
-                  className={`px-2 py-1 rounded text-xs font-semibold uppercase transition-colors ${
-                    isActive
-                      ? "bg-primary text-white"
-                      : "text-slate-500 hover:bg-slate-100"
-                  }`}
-                >
-                  {lang}
-                </button>
-              );
-            })}
+            <MegaMenu
+              open={catalogOpen}
+              categories={categories}
+              onClose={closeCatalog}
+              onSelect={() => setCatalogOpen(false)}
+            />
           </div>
 
-          {/* User */}
-          {user ? (
-            <div className="relative">
+          {/* Desktop search */}
+          <form
+            onSubmit={onSearch}
+            className="relative hidden max-w-[560px] flex-1 sm:block"
+          >
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("common.search")}
+              aria-label={t("common.search")}
+              className="w-full rounded-lg border-2 border-slate-200 px-4 py-[11px] pr-32 text-sm outline-none transition-colors focus:border-primary"
+            />
+
+            <button
+              type="submit"
+              className="absolute right-1 top-1 bottom-1 rounded-md bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+            >
+              {t("header.searchButton")}
+            </button>
+          </form>
+
+          {/* Actions */}
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2 lg:gap-3">
+            {/* Desktop language */}
+            <div className="hidden gap-1 lg:flex">
+              {["en", "tm", "ru"].map((lang) => {
+                const isActive = currentLanguage?.startsWith(lang);
+
+                return (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => changeLanguage(lang)}
+                    aria-label={`${t("footer.language")}: ${lang.toUpperCase()}`}
+                    aria-pressed={isActive}
+                    className={`rounded px-2 py-1 text-xs font-semibold uppercase transition-colors ${
+                      isActive
+                        ? "bg-primary text-white"
+                        : "text-slate-500 hover:bg-slate-100"
+                    }`}
+                  >
+                    {lang}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* User */}
+            {user ? (
+              <div className="relative" ref={userRef}>
+                <button
+                  type="button"
+                  onClick={() => setUserOpen((v) => !v)}
+                  aria-expanded={userOpen}
+                  aria-label={user.first_name}
+                  className="flex flex-col items-center rounded-lg px-2 py-1.5 text-xs font-medium transition hover:bg-slate-100"
+                >
+                  <svg
+                    className="mb-0.5 h-[22px] w-[22px]"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+
+                  <span className="max-w-[65px] truncate">
+                    {user.first_name}
+                  </span>
+                </button>
+
+                {userOpen && (
+                  <div className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-mega">
+                    {/* My Orders */}
+                    <Link
+                      to="/orders"
+                      onClick={() => setUserOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 transition hover:bg-slate-50"
+                    >
+                      <svg
+                        className="h-5 w-5 text-slate-500"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M3 3h18v18H3z" />
+                        <path d="M8 8h8M8 12h8M8 16h5" />
+                      </svg>
+
+                      <span>{t("nav.myOrders")}</span>
+                    </Link>
+
+                    <div className="border-t border-slate-100" />
+
+                    {/* Logout */}
+                    <button
+                      type="button"
+                      disabled={logoutMutation.isPending}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                      onClick={onLogout}
+                    >
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M10 17l5-5-5-5M15 12H3" />
+                        <path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" />
+                      </svg>
+
+                      <span>
+                        {logoutMutation.isPending
+                          ? t("common.loading")
+                          : t("nav.logout")}
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
               <button
                 type="button"
-                onClick={() => setUserOpen((v) => !v)}
-                aria-expanded={userOpen}
-                className="flex flex-col items-center text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-slate-100"
+                onClick={openLogin}
+                className="flex flex-col items-center rounded-lg px-2 py-1.5 text-xs font-medium transition hover:bg-slate-100"
               >
                 <svg
-                  className="w-[22px] h-[22px] mb-0.5"
+                  className="mb-0.5 h-[22px] w-[22px]"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -183,72 +269,93 @@ export default function Header() {
                   <circle cx="12" cy="7" r="4" />
                 </svg>
 
-                <span className="max-w-[72px] truncate">{user.first_name}</span>
+                <span>{t("nav.login")}</span>
               </button>
+            )}
 
-              {userOpen && (
-                <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-mega py-1 z-50">
-                  <button
-                    type="button"
-                    disabled={logoutMutation.isPending}
-                    className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 disabled:opacity-50"
-                    onClick={onLogout}
-                  >
-                    {logoutMutation.isPending
-                      ? t("common.loading")
-                      : t("nav.logout")}
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Login */
+            {/* Cart */}
             <button
               type="button"
-              onClick={openLogin}
-              className="flex flex-col items-center text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-slate-100"
+              onClick={openCart}
+              aria-label={`${t("nav.cart")}: ${cartCount}`}
+              className="relative flex flex-col items-center rounded-lg px-2 py-1.5 text-xs font-medium transition hover:bg-slate-100"
             >
+              {cartCount > 0 && (
+                <span className="absolute right-0.5 top-0 rounded-full bg-red-500 px-1.5 text-center text-[10px] font-bold text-white">
+                  {cartCount}
+                </span>
+              )}
+
               <svg
-                className="w-[22px] h-[22px] mb-0.5"
+                className="mb-0.5 h-[22px] w-[22px]"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 viewBox="0 0 24 24"
               >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
               </svg>
 
-              <span>{t("nav.login")}</span>
+              <span>{t("nav.cart")}</span>
             </button>
-          )}
+          </div>
+        </div>
 
-          {/* Cart */}
-          <button
-            type="button"
-            onClick={openCart}
-            className="flex flex-col items-center text-xs font-medium px-2.5 py-1.5 rounded-lg hover:bg-slate-100 relative"
-          >
-            {cartCount > 0 && (
-              <span className="absolute top-0.5 right-1.5 bg-red-500 text-white text-[11px] font-bold px-1.5 rounded-full min-w-[18px] text-center">
-                {cartCount}
-              </span>
-            )}
-
-            <svg
-              className="w-[22px] h-[22px] mb-0.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
+        {/* Mobile and tablet search/catalog row */}
+        <div className="flex items-center gap-2 pb-3 sm:hidden">
+          {/* Mobile catalog */}
+          <div className="relative shrink-0" ref={catalogRef}>
+            <button
+              type="button"
+              onClick={handleCatalogToggle}
+              aria-expanded={catalogOpen}
+              aria-label={t("header.catalog")}
+              className="flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
             >
-              <circle cx="9" cy="21" r="1" />
-              <circle cx="20" cy="21" r="1" />
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-            </svg>
+              <span>☰</span>
+              <span className="max-w-[85px] truncate">
+                {t("header.catalog")}
+              </span>
+            </button>
 
-            <span>{t("nav.cart")}</span>
-          </button>
+            <MegaMenu
+              open={catalogOpen}
+              categories={categories}
+              onClose={closeCatalog}
+              onSelect={() => setCatalogOpen(false)}
+            />
+          </div>
+
+          {/* Mobile search */}
+          <form onSubmit={onSearch} className="relative min-w-0 flex-1">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("common.search")}
+              aria-label={t("common.search")}
+              className="h-11 w-full rounded-lg border-2 border-slate-200 px-3 pr-10 text-sm outline-none transition-colors focus:border-primary"
+            />
+
+            <button
+              type="submit"
+              aria-label={t("header.searchButton")}
+              className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-md bg-primary text-white transition-colors hover:bg-primary-hover"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-4-4" />
+              </svg>
+            </button>
+          </form>
         </div>
       </div>
     </header>

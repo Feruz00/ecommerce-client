@@ -37,6 +37,7 @@ export default function CheckoutPage() {
     city: "",
     district: "",
     street: "",
+    delivery_method: "delivery",
     payment_method: "cash",
     notes: "",
   });
@@ -65,14 +66,20 @@ export default function CheckoutPage() {
 
   const subtotal = items.reduce((sum, item) => sum + getItemTotal(item), 0);
 
-  const shipping = subtotal > 500 ? 0 : 20;
+  const shipping =
+    form.delivery_method === "pickup" ? 0 : subtotal > 500 ? 0 : 20;
+
   const total = subtotal + shipping;
 
   const set = (key) => (event) => {
+    const value = event.target.value;
+
     setForm((previous) => ({
       ...previous,
-      [key]: event.target.value,
+      [key]: value,
     }));
+
+    if (error) setError("");
   };
 
   const onSubmit = (event) => {
@@ -80,13 +87,21 @@ export default function CheckoutPage() {
     setError("");
 
     mutation.mutate({
+      delivery_method: form.delivery_method,
+
       shipping_address: {
         full_name: form.full_name.trim(),
         phone: form.phone.trim(),
-        city: form.city.trim(),
-        district: form.district.trim(),
-        street: form.street.trim(),
+
+        ...(form.delivery_method === "delivery"
+          ? {
+              city: form.city.trim(),
+              district: form.district.trim(),
+              street: form.street.trim(),
+            }
+          : {}),
       },
+
       payment_method: form.payment_method,
       note: form.notes.trim(),
     });
@@ -226,52 +241,132 @@ export default function CheckoutPage() {
         </div>
       ) : (
         <div className="grid gap-8 md:grid-cols-5">
-          {/* Shipping form */}
+          {/* Checkout form */}
           <form
             onSubmit={onSubmit}
             className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 md:col-span-3"
           >
+            {/* Delivery method */}
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
-                {t("checkout.shippingTitle")}
+              <h2 className="mb-4 text-lg font-bold text-slate-900">
+                {t("checkout.deliveryMethodTitle")}
               </h2>
 
-              <p className="mt-1 text-xs text-slate-400">
-                {t("checkout.shippingDescription")}
-              </p>
-            </div>
-
-            {/* Address fields */}
-            {[
-              ["full_name", "fullName", "text"],
-              ["phone", "phone", "tel"],
-              ["city", "city", "text"],
-              ["district", "district", "text"],
-              ["street", "street", "text"],
-            ].map(([key, translationKey, type]) => (
-              <div key={key}>
+              <div className="space-y-2">
+                {/* Home delivery */}
                 <label
-                  htmlFor={key}
-                  className="mb-1.5 block text-[13px] font-semibold text-slate-700"
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
+                    form.delivery_method === "delivery"
+                      ? "border-primary bg-primary/5"
+                      : "border-slate-200 hover:bg-slate-50"
+                  }`}
                 >
-                  {t(`checkout.fields.${translationKey}`)}
+                  <input
+                    type="radio"
+                    name="delivery_method"
+                    value="delivery"
+                    checked={form.delivery_method === "delivery"}
+                    onChange={set("delivery_method")}
+                    className="mt-1 h-4 w-4 accent-indigo-600"
+                  />
 
-                  {key !== "district" && (
-                    <span className="ml-1 text-red-500">*</span>
-                  )}
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-800">
+                      {t("checkout.deliveryTitle")}
+                    </p>
+
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      {t("checkout.deliveryDescription")}
+                    </p>
+                  </div>
                 </label>
 
-                <input
-                  id={key}
-                  required={key !== "district"}
-                  type={type}
-                  value={form[key]}
-                  onChange={set(key)}
-                  placeholder={t(`checkout.fields.${translationKey}`)}
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none transition placeholder:text-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/10"
-                />
+                {/* Store pickup */}
+                <label
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
+                    form.delivery_method === "pickup"
+                      ? "border-primary bg-primary/5"
+                      : "border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="delivery_method"
+                    value="pickup"
+                    checked={form.delivery_method === "pickup"}
+                    onChange={set("delivery_method")}
+                    className="mt-1 h-4 w-4 accent-indigo-600"
+                  />
+
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-800">
+                      {t("checkout.pickupTitle")}
+                    </p>
+
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      {t("checkout.pickupDescription")}
+                    </p>
+                  </div>
+
+                  <span className="shrink-0 rounded-lg bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-600">
+                    {t("checkout.freeShipping")}
+                  </span>
+                </label>
               </div>
-            ))}
+            </div>
+
+            {/* Customer and address fields */}
+            <div className="space-y-4 border-t border-slate-100 pt-5">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">
+                  {form.delivery_method === "pickup"
+                    ? t("checkout.contactTitle")
+                    : t("checkout.shippingTitle")}
+                </h2>
+
+                <p className="mt-1 text-xs text-slate-400">
+                  {form.delivery_method === "pickup"
+                    ? t("checkout.contactDescription")
+                    : t("checkout.shippingDescription")}
+                </p>
+              </div>
+
+              {[
+                ["full_name", "fullName", "text"],
+                ["phone", "phone", "tel"],
+
+                ...(form.delivery_method === "delivery"
+                  ? [
+                      ["city", "city", "text"],
+                      ["district", "district", "text"],
+                      ["street", "street", "text"],
+                    ]
+                  : []),
+              ].map(([key, translationKey, type]) => (
+                <div key={key}>
+                  <label
+                    htmlFor={key}
+                    className="mb-1.5 block text-[13px] font-semibold text-slate-700"
+                  >
+                    {t(`checkout.fields.${translationKey}`)}
+
+                    {key !== "district" && (
+                      <span className="ml-1 text-red-500">*</span>
+                    )}
+                  </label>
+
+                  <input
+                    id={key}
+                    required={key !== "district"}
+                    type={type}
+                    value={form[key]}
+                    onChange={set(key)}
+                    placeholder={t(`checkout.fields.${translationKey}`)}
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm outline-none transition placeholder:text-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/10"
+                  />
+                </div>
+              ))}
+            </div>
 
             {/* Payment */}
             <div className="border-t border-slate-100 pt-5">

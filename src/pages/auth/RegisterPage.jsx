@@ -11,7 +11,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
-    email: "",
+    username: "",
     phone: "",
     password: "",
   });
@@ -82,16 +82,16 @@ export default function RegisterPage() {
 
           <div>
             <label className="block text-[13px] font-medium mb-1.5">
-              {t("auth.email")}
+              {t("auth.username")}
             </label>
 
             <input
-              type="email"
+              type="username"
               required
-              autoComplete="email"
-              value={form.email}
-              onChange={set("email")}
-              placeholder={t("auth.email")}
+              autoComplete="username"
+              value={form.username}
+              onChange={set("username")}
+              placeholder={t("auth.username")}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm outline-none focus:border-primary"
             />
           </div>

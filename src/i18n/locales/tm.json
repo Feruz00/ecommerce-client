@@ -8,9 +8,18 @@
     "login": "Giriş",
     "register": "Hasap aç",
     "logout": "Çykmak",
-    "profile": "Profil"
+    "profile": "Profil",
+    "myOrders": "Sargytlarym"
   },
   "home": {
+    "seoTitle": "Baş sahypa",
+    "seoDescription": "TechStore — smartfonlar, noutbuklar, audio enjamlary we aksessuarlar. Getirme we kepillik.",
+    "popularProducts": "Meşhur harytlar",
+    "sortNewest": "Täzeler ilki",
+    "sortPriceAsc": "Ilki arzan bahalylar",
+    "sortPriceDesc": "Ilki gymmat bahalylar",
+    "sortPopular": "Meşhurlygy boýunça",
+    "noProducts": "Haryt tapylmady",
     "heroTitle": "Ajaýyp harytlary tapyň",
     "heroSubtitle": "Iň gowy elektronika, moda we beýlekileri çalt eltip bermek bilen satyn alyň",
     "shopNow": "Indi satyn al",
@@ -112,7 +121,10 @@
     "error": "Ýalňyşlyk ýüze çykdy",
     "success": "Üstünlikli",
     "currency": "TMT",
-    "close": "Ýap"
+    "close": "Ýap",
+    "retry": "Gaýtadan synanyş",
+    "previous": "Öňki",
+    "next": "Indiki"
   },
   "footer": {
     "description": "Döwrebap söwda platformasy · Çalt eltip bermek · Howpsuz töleg",
@@ -179,6 +191,65 @@
     "confirmationNote": "Sargydyň soňky bahasy resmileşdirilende tassyklanar.",
     "successTitle": "Sargyt üstünlikli resmileşdirildi!",
     "successDescription": "Sargydyňyz üçin sag boluň.",
-    "orderNumber": "Sargyt belgisi"
+    "orderNumber": "Sargyt belgisi",
+    "deliveryMethodTitle": "Harydy kabul etmegiň usuly",
+    "deliveryTitle": "Eltip bermek",
+    "deliveryDescription": "Sargydyňyz görkezen salgyňyza eltiler.",
+    "pickupTitle": "Baryp almak",
+    "pickupDescription": "Sargydyňyzy dükanymyzdan özüňiz gelip alyp bilersiňiz.",
+    "contactTitle": "Habarlaşmak üçin maglumatlar",
+    "contactDescription": "Adyňyzy we telefon belgiňizi giriziň."
+  },
+  "orders": {
+    "seoTitle": "Sargytlarym",
+    "seoDescription": "Sargytlaryňyzy görüň we olaryň ýagdaýyny yzarlaň.",
+    "title": "Sargytlarym",
+    "subtitle": "Sargytlaryňyzyň taryhyny görüň we satyn alyşlaryňyzy yzarlaň.",
+    "all": "Ähli sargytlar",
+    "orderNumber": "Sargyt belgisi",
+    "orderDetails": "Sargyt maglumatlary",
+    "viewDetails": "Giňişleýin görmek",
+    "products": "Harytlar",
+    "total": "Jemi",
+    "subtotal": "Harytlaryň bahasy",
+    "shippingCost": "Getirme bahasy",
+    "discount": "Arzanladyş",
+    "deliveryMethod": "Almagyň usuly",
+    "paymentMethod": "Töleg usuly",
+    "shippingInformation": "Getirme maglumatlary",
+    "paymentInformation": "Töleg maglumatlary",
+    "customerName": "Müşderiniň ady",
+    "phone": "Telefon",
+    "address": "Salgy",
+    "delivery": "Getirme",
+    "pickup": "Dükandan almak",
+    "orderNote": "Sargyt barada bellik",
+    "noPaymentInformation": "Töleg maglumatlary ýok.",
+    "emptyTitle": "Siz entek sargyt etmediňiz",
+    "emptyDescription": "Ilkinji satyn alşyňyzdan soň sargytlaryňyz şu ýerde görkeziler.",
+    "startShopping": "Söwda etmäge başlaň",
+    "loadError": "Sargytlary ýükläp bolmady. Täzeden synanyşyň.",
+    "detailsError": "Sargyt maglumatlaryny ýükläp bolmady.",
+    "ordersFound": "{{count}} sargyt tapyldy",
+    "moreProducts": "Ýene {{count}} haryt",
+    "pageOf": "{{total}} sahypadan {{page}}-nji sahypa",
+    "status": {
+      "pending": "Garaşylýar",
+      "confirmed": "Tassyklanyldy",
+      "processing": "Taýýarlanylýar",
+      "shipped": "Ýola ugradyldy",
+      "delivered": "Eltip berildi",
+      "cancelled": "Ýatyryldy"
+    },
+    "paymentMethods": {
+      "cash": "Nagt",
+      "card": "Kart bilen"
+    },
+    "paymentStatuses": {
+      "pending": "Garaşylýar",
+      "paid": "Tölenildi",
+      "failed": "Töleg şowsuz boldy",
+      "refunded": "Yzyna gaýtaryldy"
+    }
   }
 }

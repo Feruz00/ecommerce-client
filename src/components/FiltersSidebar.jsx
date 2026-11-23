@@ -5,23 +5,14 @@ import { useTranslation } from "react-i18next";
 
 import api from "../api/axios";
 
-/**
- * Get localized text from category, facet or option.
- *
- * Supports:
- * translations: {
- *   en: { name: "Clothing" },
- *   ru: { name: "Одежда" },
- *   tm: { name: "Geýimler" }
- * }
- *
- * Also supports translations containing strings directly.
- */
+/* -------------------------------------------------------
+   Helpers
+------------------------------------------------------- */
+
 function getLocalizedValue(item, language, field = "name") {
   if (!item) return "";
 
   const translations = item.translations || {};
-
   const lang = language?.split("-")[0] || "en";
 
   const localized =
@@ -66,6 +57,10 @@ function getInitialAttributes(params) {
   return initial;
 }
 
+/* -------------------------------------------------------
+   Component
+------------------------------------------------------- */
+
 export default function FiltersSidebar({ categories = [] }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -91,7 +86,6 @@ export default function FiltersSidebar({ categories = [] }) {
 
   // Filter states
   const [minPrice, setMinPrice] = useState(params.get("minPrice") || "");
-
   const [maxPrice, setMaxPrice] = useState(params.get("maxPrice") || "");
 
   const [selectedCats, setSelectedCats] = useState(() => {
@@ -113,16 +107,13 @@ export default function FiltersSidebar({ categories = [] }) {
     setMaxPrice(params.get("maxPrice") || "");
 
     const category = params.get("category");
+
     setSelectedCats(category ? [category] : []);
-
     setFeaturedOnly(params.get("featured") === "true");
-
     setAttrFilters(getInitialAttributes(params));
   }, [params]);
 
   // Category selection.
-  // The API uses one category query parameter, so only one category
-  // can be selected at a time.
   const toggleCat = (id) => {
     const value = String(id);
 
@@ -185,24 +176,24 @@ export default function FiltersSidebar({ categories = [] }) {
   };
 
   return (
-    <aside className="sticky top-[88px] h-fit rounded-xl border border-slate-200 bg-white p-5">
+    <aside className="h-fit rounded-xl border border-slate-200 bg-white p-4 sm:p-5 lg:sticky lg:top-24">
       {/* Price */}
-      <div className="mb-6 border-b border-slate-200 pb-5">
-        <h3 className="mb-3 text-[15px] font-semibold text-slate-800">
+      <div className="mb-5 border-b border-slate-200 pb-5 sm:mb-6">
+        <h3 className="mb-3 text-sm font-semibold text-slate-800">
           {t("filters.price")} ({t("common.currency")})
         </h3>
 
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <input
             type="number"
             min="0"
             placeholder={t("filters.from")}
             value={minPrice}
             onChange={(event) => setMinPrice(event.target.value)}
-            className="w-full rounded-md border border-slate-200 p-2 text-[13px] outline-none transition-colors focus:border-primary"
+            className="min-w-0 w-full rounded-md border border-slate-200 p-2.5 text-xs outline-none transition-colors focus:border-primary sm:text-sm"
           />
 
-          <span className="text-slate-400">—</span>
+          <span className="shrink-0 text-slate-400">—</span>
 
           <input
             type="number"
@@ -210,32 +201,34 @@ export default function FiltersSidebar({ categories = [] }) {
             placeholder={t("filters.to")}
             value={maxPrice}
             onChange={(event) => setMaxPrice(event.target.value)}
-            className="w-full rounded-md border border-slate-200 p-2 text-[13px] outline-none transition-colors focus:border-primary"
+            className="min-w-0 w-full rounded-md border border-slate-200 p-2.5 text-xs outline-none transition-colors focus:border-primary sm:text-sm"
           />
         </div>
       </div>
 
       {/* Categories */}
-      <div className="mb-6 border-b border-slate-200 pb-5">
-        <h3 className="mb-3 text-[15px] font-semibold text-slate-800">
+      <div className="mb-5 border-b border-slate-200 pb-5 sm:mb-6">
+        <h3 className="mb-3 text-sm font-semibold text-slate-800">
           {t("filters.category")}
         </h3>
 
         {roots.length ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {roots.map((category) => (
               <label
                 key={category.id}
-                className="flex cursor-pointer items-center gap-2 text-sm text-slate-600 transition-colors hover:text-primary"
+                className="flex min-w-0 cursor-pointer items-start gap-2 text-sm text-slate-600 transition-colors hover:text-primary"
               >
                 <input
                   type="checkbox"
                   checked={selectedCats.includes(String(category.id))}
                   onChange={() => toggleCat(category.id)}
-                  className="rounded border-slate-300 text-primary focus:ring-primary"
+                  className="mt-0.5 shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
                 />
 
-                <span>{getLocalizedValue(category, language)}</span>
+                <span className="min-w-0 break-words">
+                  {getLocalizedValue(category, language)}
+                </span>
               </label>
             ))}
           </div>
@@ -248,38 +241,38 @@ export default function FiltersSidebar({ categories = [] }) {
       {facets.map((facet) => (
         <div
           key={facet.id || facet.code}
-          className="mb-6 border-b border-slate-200 pb-5"
+          className="mb-5 border-b border-slate-200 pb-5 sm:mb-6"
         >
-          <h3 className="mb-3 text-[15px] font-semibold text-slate-800">
+          <h3 className="mb-3 break-words text-sm font-semibold text-slate-800">
             {getLocalizedValue(facet, language)}
           </h3>
 
           {/* Select and color attributes */}
           {["select", "color"].includes(facet.type) ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(facet.options || []).map((option) => (
                 <label
                   key={option.id || option.value}
-                  className="flex cursor-pointer items-center gap-2 text-sm text-slate-600 transition-colors hover:text-primary"
+                  className="flex min-w-0 cursor-pointer items-start gap-2 text-sm text-slate-600 transition-colors hover:text-primary"
                 >
                   <input
                     type="radio"
                     name={`facet_${facet.code}`}
                     checked={attrFilters[facet.code] === String(option.value)}
                     onChange={() => setAttr(facet.code, String(option.value))}
-                    className="border-slate-300 text-primary focus:ring-primary"
+                    className="mt-0.5 shrink-0 border-slate-300 text-primary focus:ring-primary"
                   />
 
                   {facet.type === "color" && option.color_hex && (
                     <span
-                      className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border border-slate-200"
+                      className="mt-0.5 inline-block h-3.5 w-3.5 shrink-0 rounded-full border border-slate-200"
                       style={{
                         backgroundColor: option.color_hex,
                       }}
                     />
                   )}
 
-                  <span>
+                  <span className="min-w-0 break-words">
                     {getLocalizedValue(option, language, "label") ||
                       option.value}
                   </span>
@@ -304,10 +297,10 @@ export default function FiltersSidebar({ categories = [] }) {
                 onChange={(event) =>
                   setAttr(facet.code, event.target.checked ? "true" : "")
                 }
-                className="rounded border-slate-300 text-primary focus:ring-primary"
+                className="shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
               />
 
-              {t("filters.yes")}
+              <span>{t("filters.yes")}</span>
             </label>
           ) : (
             <input
@@ -315,15 +308,15 @@ export default function FiltersSidebar({ categories = [] }) {
               value={attrFilters[facet.code] || ""}
               onChange={(event) => setAttr(facet.code, event.target.value)}
               placeholder={getLocalizedValue(facet, language)}
-              className="w-full rounded-md border border-slate-200 p-2 text-[13px] outline-none transition-colors focus:border-primary"
+              className="w-full min-w-0 rounded-md border border-slate-200 p-2.5 text-sm outline-none transition-colors focus:border-primary"
             />
           )}
         </div>
       ))}
 
       {/* Featured products */}
-      <div className="mb-6 border-b border-slate-200 pb-5">
-        <h3 className="mb-3 text-[15px] font-semibold text-slate-800">
+      <div className="mb-5 border-b border-slate-200 pb-5 sm:mb-6">
+        <h3 className="mb-3 text-sm font-semibold text-slate-800">
           {t("filters.featured")}
         </h3>
 
@@ -332,19 +325,19 @@ export default function FiltersSidebar({ categories = [] }) {
             type="checkbox"
             checked={featuredOnly}
             onChange={(event) => setFeaturedOnly(event.target.checked)}
-            className="rounded border-slate-300 text-primary focus:ring-primary"
+            className="shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
           />
 
-          {t("filters.featuredOnly")}
+          <span>{t("filters.featuredOnly")}</span>
         </label>
       </div>
 
       {/* Actions */}
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 gap-2">
         <button
           type="button"
           onClick={apply}
-          className="w-full rounded-lg bg-primary py-2.5 font-semibold text-white transition-colors hover:bg-primary-hover"
+          className="min-h-11 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
         >
           {t("filters.apply")}
         </button>
@@ -352,7 +345,7 @@ export default function FiltersSidebar({ categories = [] }) {
         <button
           type="button"
           onClick={reset}
-          className="w-full rounded-lg border border-slate-200 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:border-primary hover:text-primary"
+          className="min-h-11 w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:border-primary hover:text-primary"
         >
           {t("filters.clear")}
         </button>

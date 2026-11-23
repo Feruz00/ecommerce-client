@@ -8,9 +8,18 @@
     "login": "Войти",
     "register": "Регистрация",
     "logout": "Выйти",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "myOrders": "Мои заказы"
   },
   "home": {
+    "seoTitle": "Главная",
+    "seoDescription": "TechStore — смартфоны, ноутбуки, аудиотехника и аксессуары. Доставка и гарантия.",
+    "popularProducts": "Популярные товары",
+    "sortNewest": "Сначала новые",
+    "sortPriceAsc": "Сначала дешевле",
+    "sortPriceDesc": "Сначала дороже",
+    "sortPopular": "По популярности",
+    "noProducts": "Товары не найдены",
     "heroTitle": "Откройте для себя отличные товары",
     "heroSubtitle": "Покупайте лучшую электронику, моду и многое другое с быстрой доставкой",
     "shopNow": "Купить сейчас",
@@ -113,7 +122,10 @@
     "error": "Что-то пошло не так",
     "success": "Успешно",
     "currency": "TMT",
-    "close": "Закрыть"
+    "close": "Закрыть",
+    "retry": "Повторить",
+    "previous": "Назад",
+    "next": "Далее"
   },
   "footer": {
     "description": "Современный маркетплейс · Быстрая доставка · Безопасная оплата",
@@ -181,6 +193,65 @@
     "confirmationNote": "Итоговая стоимость заказа будет подтверждена при оформлении.",
     "successTitle": "Заказ оформлен!",
     "successDescription": "Спасибо за ваш заказ.",
-    "orderNumber": "Номер заказа"
+    "orderNumber": "Номер заказа",
+    "deliveryMethodTitle": "Способ получения",
+    "deliveryTitle": "Доставка",
+    "deliveryDescription": "Ваш заказ будет доставлен по указанному адресу.",
+    "pickupTitle": "Самовывоз",
+    "pickupDescription": "Вы можете самостоятельно забрать заказ из нашего магазина.",
+    "contactTitle": "Контактная информация",
+    "contactDescription": "Укажите ваше имя и номер телефона."
+  },
+  "orders": {
+    "seoTitle": "Мои заказы",
+    "seoDescription": "Просматривайте свои заказы и отслеживайте их статус.",
+    "title": "Мои заказы",
+    "subtitle": "История заказов и отслеживание покупок.",
+    "all": "Все заказы",
+    "orderNumber": "Номер заказа",
+    "orderDetails": "Информация о заказе",
+    "viewDetails": "Подробнее",
+    "products": "Товары",
+    "total": "Итого",
+    "subtotal": "Сумма товаров",
+    "shippingCost": "Доставка",
+    "discount": "Скидка",
+    "deliveryMethod": "Способ получения",
+    "paymentMethod": "Способ оплаты",
+    "shippingInformation": "Информация о доставке",
+    "paymentInformation": "Информация об оплате",
+    "customerName": "Имя покупателя",
+    "phone": "Телефон",
+    "address": "Адрес",
+    "delivery": "Доставка",
+    "pickup": "Самовывоз",
+    "orderNote": "Комментарий к заказу",
+    "noPaymentInformation": "Информация об оплате отсутствует.",
+    "emptyTitle": "У вас пока нет заказов",
+    "emptyDescription": "Ваши заказы появятся здесь после первой покупки.",
+    "startShopping": "Начать покупки",
+    "loadError": "Не удалось загрузить заказы. Попробуйте ещё раз.",
+    "detailsError": "Не удалось загрузить информацию о заказе.",
+    "ordersFound": "Найдено заказов: {{count}}",
+    "moreProducts": "Ещё товаров: {{count}}",
+    "pageOf": "Страница {{page}} из {{total}}",
+    "status": {
+      "pending": "Ожидает",
+      "confirmed": "Подтверждён",
+      "processing": "В обработке",
+      "shipped": "Отправлен",
+      "delivered": "Доставлен",
+      "cancelled": "Отменён"
+    },
+    "paymentMethods": {
+      "cash": "Наличными",
+      "card": "Картой"
+    },
+    "paymentStatuses": {
+      "pending": "Ожидает оплаты",
+      "paid": "Оплачен",
+      "failed": "Ошибка оплаты",
+      "refunded": "Возвращён"
+    }
   }
 }

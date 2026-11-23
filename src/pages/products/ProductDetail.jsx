@@ -179,9 +179,7 @@ export default function ProductDetail() {
   )[0];
 
   const { data, isLoading } = useProduct(id);
-
   const addToCart = useAddToCart();
-
   const { openCart, openLogin } = useUi();
 
   const [qty, setQty] = useState(1);
@@ -206,16 +204,6 @@ export default function ProductDetail() {
 
   /* -------------------------------------------------------
      Build variant dimensions
-
-     Example:
-     Color:
-       White
-       Black
-
-     Storage:
-       128 GB
-       256 GB
-       512 GB
   ------------------------------------------------------- */
 
   const variantDims = useMemo(() => {
@@ -298,8 +286,6 @@ export default function ProductDetail() {
 
   /* -------------------------------------------------------
      Variant matching
-
-     Every dimension must match the selected option.
   ------------------------------------------------------- */
 
   const matchesSelection = (variant, selection) => {
@@ -347,7 +333,7 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="container-main flex justify-center py-20">
+      <div className="container-main flex min-h-[50vh] items-center justify-center py-12">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
@@ -355,7 +341,7 @@ export default function ProductDetail() {
 
   if (!p) {
     return (
-      <div className="container-main py-20 text-center text-slate-500">
+      <div className="container-main py-16 text-center text-slate-500 sm:py-20">
         {t("product.notFound")}
       </div>
     );
@@ -370,13 +356,10 @@ export default function ProductDetail() {
   const categoryName = getLocalizedValue(p.category, "name", language);
 
   const images = getProductImages(p);
-
   const mainImg = getVariantImage(matchedVariant) || images[0] || null;
 
   /* -------------------------------------------------------
      Price and stock
-
-     Variant price has priority over product price.
   ------------------------------------------------------- */
 
   const price = hasVariants
@@ -414,8 +397,6 @@ export default function ProductDetail() {
 
   /* -------------------------------------------------------
      Check option availability
-
-     Check the complete combination, not only one attribute.
   ------------------------------------------------------- */
 
   const isOptionAvailable = (dimensionCode, optionKey) => {
@@ -430,7 +411,6 @@ export default function ProductDetail() {
       return variantDims.every((dimension) => {
         const selectedValue = nextSelection[dimension.code];
 
-        // This dimension has not been selected yet.
         if (selectedValue === undefined || selectedValue === "") {
           return true;
         }
@@ -459,9 +439,6 @@ export default function ProductDetail() {
 
   /* -------------------------------------------------------
      Add to cart
-
-     IMPORTANT:
-     Send variant_id separately.
   ------------------------------------------------------- */
 
   const handleAdd = () => {
@@ -483,13 +460,8 @@ export default function ProductDetail() {
     addToCart.mutate(
       {
         product_id: p.id,
-
-        // The actual variant ID is important.
         variant_id: matchedVariant?.id || null,
-
         quantity: Number(qty),
-
-        // Human-readable snapshot of the selected attributes.
         selected_attributes: selectedAttributes,
       },
       {
@@ -533,7 +505,7 @@ export default function ProductDetail() {
   ------------------------------------------------------- */
 
   return (
-    <div className="container-main py-8">
+    <div className="container-main py-4 sm:py-6 lg:py-8">
       <Seo
         title={name}
         description={(desc || name || "").slice(0, 160)}
@@ -544,49 +516,51 @@ export default function ProductDetail() {
       />
 
       {/* Breadcrumbs */}
-      <nav className="mb-6 flex flex-wrap gap-2 text-sm text-slate-500">
-        <Link to="/" className="hover:text-primary">
+      <nav className="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-slate-500 sm:mb-6 sm:text-sm">
+        <Link to="/" className="transition hover:text-primary">
           {t("nav.home")}
         </Link>
 
         <span>/</span>
 
-        <Link to="/products" className="hover:text-primary">
+        <Link to="/products" className="transition hover:text-primary">
           {t("header.catalog")}
         </Link>
 
         <span>/</span>
 
-        <span className="text-slate-800">{name}</span>
+        <span className="min-w-0 max-w-full break-words text-slate-800">
+          {name}
+        </span>
       </nav>
 
-      <div className="mb-16 grid gap-8 md:grid-cols-2 lg:gap-12">
+      <div className="mb-12 grid min-w-0 grid-cols-1 items-start gap-6 sm:gap-8 md:grid-cols-2 lg:mb-16 lg:gap-12">
         {/* Product image */}
-        <div className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="mx-auto flex aspect-square w-full max-w-[600px] items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white sm:rounded-2xl">
           {mainImg ? (
             <img
               src={mainImg}
               alt={name}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
           ) : (
-            <span className="text-8xl">📦</span>
+            <span className="text-6xl sm:text-8xl">📦</span>
           )}
         </div>
 
         {/* Product details */}
-        <div>
+        <div className="min-w-0">
           {categoryName && (
-            <p className="mb-1 text-sm font-medium text-primary">
+            <p className="mb-1.5 text-xs font-medium text-primary sm:text-sm">
               {categoryName}
             </p>
           )}
 
-          <h1 className="mb-3 text-2xl font-bold text-slate-900 md:text-3xl">
+          <h1 className="mb-3 break-words text-xl font-bold leading-tight text-slate-900 sm:text-2xl lg:text-3xl">
             {name}
           </h1>
 
-          <div className="mb-4 flex items-center gap-2 text-sm text-slate-500">
+          <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-slate-500 sm:text-sm">
             <span className="text-amber-400">
               {"★".repeat(Math.round(p.rating_avg || 0))}
             </span>
@@ -597,20 +571,22 @@ export default function ProductDetail() {
           </div>
 
           {/* Price */}
-          <div className="mb-6 flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-slate-900">
+          <div className="mb-5 flex flex-wrap items-baseline gap-x-3 gap-y-1 sm:mb-6">
+            <span className="text-2xl font-extrabold text-slate-900 sm:text-3xl">
               {formatPrice(price, language)}
             </span>
 
             {compare && compare > price && (
-              <span className="text-lg text-slate-400 line-through">
+              <span className="text-base text-slate-400 line-through sm:text-lg">
                 {formatPrice(compare, language)}
               </span>
             )}
           </div>
 
           {desc && (
-            <p className="mb-6 leading-relaxed text-slate-600">{desc}</p>
+            <p className="mb-5 whitespace-pre-line break-words text-sm leading-relaxed text-slate-600 sm:mb-6 sm:text-base">
+              {desc}
+            </p>
           )}
 
           {/* Variants */}
@@ -622,12 +598,12 @@ export default function ProductDetail() {
                 );
 
                 return (
-                  <div key={dimension.code}>
-                    <div className="mb-2 text-sm font-semibold text-slate-800">
-                      {dimension.name}
+                  <div key={dimension.code} className="min-w-0">
+                    <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-slate-800">
+                      <span>{dimension.name}</span>
 
                       {selectedOption && (
-                        <span className="ml-2 font-normal text-primary">
+                        <span className="font-normal text-primary">
                           {selectedOption.label}
                         </span>
                       )}
@@ -651,8 +627,8 @@ export default function ProductDetail() {
                               handleVariantChange(dimension.code, option.key)
                             }
                             className={`
-                              flex items-center gap-2 rounded-lg border px-3 py-2
-                              text-sm font-medium transition
+                              inline-flex min-h-10 max-w-full items-center gap-2 rounded-lg border px-3 py-2
+                              text-xs font-medium transition sm:text-sm
                               ${
                                 active
                                   ? "border-primary bg-primary/10 text-primary ring-1 ring-primary"
@@ -674,7 +650,7 @@ export default function ProductDetail() {
                               />
                             )}
 
-                            {option.label}
+                            <span className="break-words">{option.label}</span>
                           </button>
                         );
                       })}
@@ -690,24 +666,24 @@ export default function ProductDetail() {
               )}
 
               {activeVariants.length > 0 && !matchedVariant && (
-                <p className="text-sm text-amber-600">
+                <p className="text-xs text-amber-600 sm:text-sm">
                   Выберите все характеристики товара.
                 </p>
               )}
 
               {matchedVariant && (
-                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
-                  <div className="flex items-center justify-between gap-3">
+                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 sm:p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-xs text-slate-500">
                       Выбранный вариант
                     </span>
 
-                    <span className="text-sm font-semibold text-slate-800">
+                    <span className="break-all text-sm font-semibold text-slate-800">
                       {matchedVariant.sku || "—"}
                     </span>
                   </div>
 
-                  <div className="mt-1 flex items-center justify-between gap-3">
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                     <span className="text-xs text-slate-500">
                       Цена варианта
                     </span>
@@ -722,23 +698,27 @@ export default function ProductDetail() {
           )}
 
           {/* Quantity and add to cart */}
-          <div className="mb-5 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-            <div className="flex w-fit items-center overflow-hidden rounded-lg border border-slate-200">
+          <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center">
+            <div className="flex w-full items-center justify-between overflow-hidden rounded-lg border border-slate-200 sm:w-fit sm:justify-start">
               <button
                 type="button"
                 disabled={qty <= 1}
-                className="h-11 w-11 hover:bg-slate-50 disabled:opacity-40"
+                aria-label="Decrease quantity"
+                className="h-11 w-14 text-lg transition hover:bg-slate-50 disabled:opacity-40 sm:w-11"
                 onClick={() => setQty((current) => Math.max(1, current - 1))}
               >
                 −
               </button>
 
-              <span className="w-12 text-center font-semibold">{qty}</span>
+              <span className="min-w-12 text-center font-semibold tabular-nums">
+                {qty}
+              </span>
 
               <button
                 type="button"
                 disabled={qty >= stock || stock <= 0}
-                className="h-11 w-11 hover:bg-slate-50 disabled:opacity-40"
+                aria-label="Increase quantity"
+                className="h-11 w-14 text-lg transition hover:bg-slate-50 disabled:opacity-40 sm:w-11"
                 onClick={() =>
                   setQty((current) => Math.min(stock, current + 1))
                 }
@@ -751,7 +731,7 @@ export default function ProductDetail() {
               type="button"
               onClick={handleAdd}
               disabled={!canAddToCart}
-              className="flex-1 rounded-lg bg-primary px-6 py-3 font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex min-h-11 w-full flex-1 items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50 sm:text-base"
             >
               {addToCart.isPending
                 ? t("common.loading")
@@ -762,7 +742,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Stock */}
-          <p className="mb-8 text-sm text-slate-500">
+          <p className="mb-6 text-xs text-slate-500 sm:mb-8 sm:text-sm">
             {t("product.inStock")}:{" "}
             <span className="font-semibold text-slate-800">{stock}</span>{" "}
             {t("product.pieces")}
@@ -771,35 +751,43 @@ export default function ProductDetail() {
           {/* Specifications */}
           {attributes.length > 0 && (
             <div className="overflow-hidden rounded-xl border border-slate-200">
-              <div className="bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800">
+              <div className="bg-slate-50 px-3 py-3 text-sm font-semibold text-slate-800 sm:px-4">
                 {t("product.specifications")}
               </div>
 
-              <table className="w-full text-sm">
-                <tbody>
-                  {attributes.map((attribute, index) => {
-                    const attributeName = getAttributeName(attribute, language);
+              <div className="w-full overflow-x-auto">
+                <table className="w-full min-w-[280px] text-xs sm:text-sm">
+                  <tbody>
+                    {attributes.map((attribute, index) => {
+                      const attributeName = getAttributeName(
+                        attribute,
+                        language,
+                      );
 
-                    const attributeValue = getOptionLabel(attribute, language);
+                      const attributeValue = getOptionLabel(
+                        attribute,
+                        language,
+                      );
 
-                    return (
-                      <tr
-                        key={attribute.attribute_id || attribute.id || index}
-                        className="border-t border-slate-100"
-                      >
-                        <td className="w-1/2 px-4 py-3 text-slate-500">
-                          {attributeName}
-                        </td>
+                      return (
+                        <tr
+                          key={attribute.attribute_id || attribute.id || index}
+                          className="border-t border-slate-100"
+                        >
+                          <td className="w-1/2 break-words px-3 py-3 text-slate-500 sm:px-4">
+                            {attributeName}
+                          </td>
 
-                        <td className="px-4 py-3 font-medium text-slate-800">
-                          {attributeValue}
-                          {attribute.unit ? ` ${attribute.unit}` : ""}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          <td className="break-words px-3 py-3 font-medium text-slate-800 sm:px-4">
+                            {attributeValue}
+                            {attribute.unit ? ` ${attribute.unit}` : ""}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
@@ -807,12 +795,12 @@ export default function ProductDetail() {
 
       {/* Related products */}
       {p.related?.length > 0 && (
-        <section className="mb-16">
-          <h2 className="mb-5 text-xl font-bold text-slate-900">
+        <section className="mb-10 sm:mb-16">
+          <h2 className="mb-4 text-lg font-bold text-slate-900 sm:mb-5 sm:text-xl">
             {t("product.related")}
           </h2>
 
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
             {p.related.map((relatedProduct) => (
               <ProductCard key={relatedProduct.id} product={relatedProduct} />
             ))}
