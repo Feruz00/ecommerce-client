@@ -1,24 +1,24 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 const FALLBACK = [
   {
-    id: 1,
+    id: "fallback-1",
     key: "banner1",
     link: "/products",
     gradient: "from-blue-900 to-blue-500",
     emoji: "📱",
   },
   {
-    id: 2,
+    id: "fallback-2",
     key: "banner2",
     link: "/products",
     gradient: "from-slate-900 to-slate-600",
     emoji: "💻",
   },
   {
-    id: 3,
+    id: "fallback-3",
     key: "banner3",
     link: "/products",
     gradient: "from-violet-900 to-violet-600",
@@ -28,10 +28,9 @@ const FALLBACK = [
 
 function getBannerTranslation(banner, language) {
   const translations = banner?.translations || {};
-  const lang = language?.split("-")[0] || "en";
 
   return (
-    translations[lang] ||
+    translations[language] ||
     translations.en ||
     translations.ru ||
     translations.tm ||
@@ -44,7 +43,7 @@ function mapBanner(banner, index, language, t) {
   const translated = getBannerTranslation(banner, language);
 
   return {
-    id: banner.id,
+    id: banner.id ?? `banner-${index}`,
     tag: t(`home.${fallback.key}.tag`),
     title: translated.title || banner.title || t(`home.${fallback.key}.title`),
     text: translated.text || banner.text || t(`home.${fallback.key}.text`),
@@ -52,26 +51,88 @@ function mapBanner(banner, index, language, t) {
     btn: t(`home.${fallback.key}.button`),
     gradient: fallback.gradient,
     emoji: fallback.emoji,
-    image: banner.image || banner.imageFile?.url,
+    image: banner.image || banner.imageFile?.url || null,
   };
+}
+
+function getSafeLink(link) {
+  if (!link || typeof link !== "string") return "/products";
+
+  const value = link.trim();
+
+  // Only allow internal paths or HTTP(S) external URLs.
+  if (value.startsWith("/") && !value.startsWith("//")) {
+    return value;
+  }
+
+  if (/^https?:\/\//i.test(value)) {
+    try {
+      const url = new URL(value);
+
+      if (url.protocol === "http:" || url.protocol === "https:") {
+        return url.href;
+      }
+    } catch {
+      return "/products";
+    }
+  }
+
+  return "/products";
+}
+
+function BannerButton({ link, children }) {
+  const safeLink = getSafeLink(link);
+  const isExternal = /^https?:\/\//i.test(safeLink);
+
+  if (isExternal) {
+    return (
+      <a
+        href={safeLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex min-h-10 items-center justify-center rounded-lg bg-white px-4 py-2.5 text-xs font-semibold text-slate-900 transition hover:bg-slate-100 sm:min-h-11 sm:px-6 sm:text-sm"
+      >
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      to={safeLink}
+      className="inline-flex min-h-10 items-center justify-center rounded-lg bg-white px-4 py-2.5 text-xs font-semibold text-slate-900 transition hover:bg-slate-100 sm:min-h-11 sm:px-6 sm:text-sm"
+    >
+      {children}
+    </Link>
+  );
 }
 
 export default function BannerCarousel({ banners = [] }) {
   const { t, i18n } = useTranslation();
 
-  const language = i18n.resolvedLanguage || i18n.language || "en";
+  const language = (i18n.resolvedLanguage || i18n.language || "en").split(
+    "-",
+  )[0];
 
-  const slides = banners.length
-    ? banners.map((banner, index) => mapBanner(banner, index, language, t))
-    : FALLBACK.map((slide) => ({
-        ...slide,
-        tag: t(`home.${slide.key}.tag`),
-        title: t(`home.${slide.key}.title`),
-        text: t(`home.${slide.key}.text`),
-        btn: t(`home.${slide.key}.button`),
-      }));
+  const slides = useMemo(() => {
+    if (banners.length) {
+      return banners.map((banner, index) =>
+        mapBanner(banner, index, language, t),
+      );
+    }
+
+    return FALLBACK.map((slide) => ({
+      ...slide,
+      tag: t(`home.${slide.key}.tag`),
+      title: t(`home.${slide.key}.title`),
+      text: t(`home.${slide.key}.text`),
+      btn: t(`home.${slide.key}.button`),
+      image: null,
+    }));
+  }, [banners, language, t]);
 
   const [current, setCurrent] = useState(0);
+
   const total = slides.length;
 
   const go = useCallback(
@@ -83,7 +144,7 @@ export default function BannerCarousel({ banners = [] }) {
     [total],
   );
 
-  // Keep active index valid if banners change.
+  // Keep active slide valid when banners change.
   useEffect(() => {
     setCurrent((previous) => (total > 0 ? Math.min(previous, total - 1) : 0));
   }, [total]);
@@ -123,6 +184,7 @@ export default function BannerCarousel({ banners = [] }) {
                     src={slide.image}
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
                   />
 
                   <div className="absolute inset-0 bg-slate-950/55" />
@@ -131,30 +193,31 @@ export default function BannerCarousel({ banners = [] }) {
 
               {/* Content */}
               <div className="relative z-10 w-full max-w-2xl pr-7 sm:pr-12">
-                <span className="mb-2 inline-block max-w-full rounded-full bg-white/20 px-3 py-1 text-[10px] font-semibold sm:mb-3 sm:text-xs">
-                  {slide.tag}
-                </span>
+                {slide.tag && (
+                  <span className="mb-2 inline-block max-w-full rounded-full bg-white/20 px-3 py-1 text-[10px] font-semibold sm:mb-3 sm:text-xs">
+                    {slide.tag}
+                  </span>
+                )}
 
                 <h2 className="mb-2 break-words text-xl font-bold leading-tight sm:mb-3 sm:text-3xl lg:text-4xl">
                   {slide.title}
                 </h2>
 
-                <p className="mb-4 line-clamp-3 max-w-xl text-xs leading-relaxed text-white/90 sm:mb-6 sm:text-sm lg:text-base">
-                  {slide.text}
-                </p>
+                {slide.text && (
+                  <p className="mb-4 line-clamp-3 max-w-xl text-xs leading-relaxed text-white/90 sm:mb-6 sm:text-sm lg:text-base">
+                    {slide.text}
+                  </p>
+                )}
 
-                <Link
-                  to={slide.link}
-                  className="inline-flex min-h-10 items-center justify-center rounded-lg bg-white px-4 py-2.5 text-xs font-semibold text-slate-900 transition hover:bg-slate-100 sm:min-h-11 sm:px-6 sm:text-sm"
-                >
-                  {slide.btn}
-                </Link>
+                <BannerButton link={slide.link}>{slide.btn}</BannerButton>
               </div>
 
               {/* Decorative emoji */}
-              <div className="relative z-10 ml-auto hidden shrink-0 select-none text-7xl md:block lg:text-[110px]">
-                {slide.emoji}
-              </div>
+              {!slide.image && (
+                <div className="relative z-10 ml-auto hidden shrink-0 select-none text-7xl md:block lg:text-[110px]">
+                  {slide.emoji}
+                </div>
+              )}
             </div>
           ))}
         </div>
