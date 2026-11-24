@@ -560,7 +560,7 @@ export default function ProductDetail() {
             {name}
           </h1>
 
-          <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-slate-500 sm:text-sm">
+          {/* <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-slate-500 sm:text-sm">
             <span className="text-amber-400">
               {"★".repeat(Math.round(p.rating_avg || 0))}
             </span>
@@ -568,7 +568,7 @@ export default function ProductDetail() {
             <span>
               ({p.rating_count || 0} {t("product.reviews")})
             </span>
-          </div>
+          </div> */}
 
           {/* Price */}
           <div className="mb-5 flex flex-wrap items-baseline gap-x-3 gap-y-1 sm:mb-6">
