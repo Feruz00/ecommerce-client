@@ -26,27 +26,11 @@ const FALLBACK = [
   },
 ];
 
-function getBannerTranslation(banner, language) {
-  const translations = banner?.translations || {};
-
-  return (
-    translations[language] ||
-    translations.en ||
-    translations.ru ||
-    translations.tm ||
-    {}
-  );
-}
-
-function mapBanner(banner, index, language, t) {
+function mapBanner(banner, index, t) {
   const fallback = FALLBACK[index % FALLBACK.length];
-  const translated = getBannerTranslation(banner, language);
 
   return {
     id: banner.id ?? `banner-${index}`,
-    tag: t(`home.${fallback.key}.tag`),
-    title: translated.title || banner.title || t(`home.${fallback.key}.title`),
-    text: translated.text || banner.text || t(`home.${fallback.key}.text`),
     link: banner.link || fallback.link,
     btn: t(`home.${fallback.key}.button`),
     gradient: fallback.gradient,
@@ -108,28 +92,19 @@ function BannerButton({ link, children }) {
 }
 
 export default function BannerCarousel({ banners = [] }) {
-  const { t, i18n } = useTranslation();
-
-  const language = (i18n.resolvedLanguage || i18n.language || "en").split(
-    "-",
-  )[0];
-
+  const { t } = useTranslation();
   const slides = useMemo(() => {
     if (banners.length) {
-      return banners.map((banner, index) =>
-        mapBanner(banner, index, language, t),
-      );
+      return banners.map((banner, index) => mapBanner(banner, index, t));
     }
 
     return FALLBACK.map((slide) => ({
       ...slide,
       tag: t(`home.${slide.key}.tag`),
-      title: t(`home.${slide.key}.title`),
-      text: t(`home.${slide.key}.text`),
       btn: t(`home.${slide.key}.button`),
       image: null,
     }));
-  }, [banners, language, t]);
+  }, [banners, t]);
 
   const [current, setCurrent] = useState(0);
 
@@ -173,9 +148,10 @@ export default function BannerCarousel({ banners = [] }) {
           }}
         >
           {slides.map((slide) => (
-            <div
+            <Link
+              to={slide.link}
               key={slide.id}
-              className={`relative flex h-full min-w-full items-center overflow-hidden bg-gradient-to-br ${slide.gradient} px-5 py-6 text-white sm:px-10 sm:py-8 lg:px-14`}
+              className={`relative cursor-pointer flex h-full min-w-full items-center overflow-hidden bg-gradient-to-br ${slide.gradient} px-5 py-6 text-white sm:px-10 sm:py-8 lg:px-14`}
             >
               {/* Background image */}
               {slide.image && (
@@ -191,34 +167,12 @@ export default function BannerCarousel({ banners = [] }) {
                 </>
               )}
 
-              {/* Content */}
-              <div className="relative z-10 w-full max-w-2xl pr-7 sm:pr-12">
-                {slide.tag && (
-                  <span className="mb-2 inline-block max-w-full rounded-full bg-white/20 px-3 py-1 text-[10px] font-semibold sm:mb-3 sm:text-xs">
-                    {slide.tag}
-                  </span>
-                )}
-
-                <h2 className="mb-2 break-words text-xl font-bold leading-tight sm:mb-3 sm:text-3xl lg:text-4xl">
-                  {slide.title}
-                </h2>
-
-                {slide.text && (
-                  <p className="mb-4 line-clamp-3 max-w-xl text-xs leading-relaxed text-white/90 sm:mb-6 sm:text-sm lg:text-base">
-                    {slide.text}
-                  </p>
-                )}
-
-                <BannerButton link={slide.link}>{slide.btn}</BannerButton>
-              </div>
-
-              {/* Decorative emoji */}
               {!slide.image && (
                 <div className="relative z-10 ml-auto hidden shrink-0 select-none text-7xl md:block lg:text-[110px]">
                   {slide.emoji}
                 </div>
               )}
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -240,7 +194,11 @@ export default function BannerCarousel({ banners = [] }) {
             type="button"
             aria-label={t("home.nextSlide")}
             onClick={() => go(current + 1)}
-            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-lg font-bold text-slate-900 shadow-card transition hover:bg-white sm:right-4 sm:h-10 sm:w-10 sm:text-xl"
+            className="absolute right-2 
+            top-1/2 flex h-8 w-8 -translate-y-1/2
+              text-xl
+            items-center justify-center rounded-full bg-white/85 
+            font-bold text-slate-900 shadow-card transition hover:bg-white sm:right-4 sm:h-10 sm:w-10 sm:text-xl"
           >
             ›
           </button>
