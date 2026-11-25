@@ -1,25 +1,25 @@
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 
-const SITE = "TechStore";
+const SITE = "Online Sowda";
 
 const SEO_TEXT = {
   en: {
-    title: "Marketplace",
+    title: "Online Marketplace",
     description:
-      "TechStore — online marketplace. Smartphones, laptops, audio devices and accessories with delivery.",
+      "Online Sowda — online marketplace. Smartphones, laptops, audio devices and accessories with delivery.",
     locale: "en_US",
   },
   ru: {
-    title: "Маркетплейс",
+    title: "Интернет-магазин",
     description:
-      "TechStore — онлайн-маркетплейс. Смартфоны, ноутбуки, аудио и аксессуары с доставкой.",
+      "Online Sowda — онлайн-маркетплейс. Смартфоны, ноутбуки, аудиотехника и аксессуары с доставкой.",
     locale: "ru_RU",
   },
   tm: {
-    title: "Marketpleýs",
+    title: "Onlaýn dükan",
     description:
-      "TechStore — onlaýn marketpleýs. Smartfonlar, noutbuklar, audio enjamlary we eltip bermek hyzmaty bilen aksessuarlar.",
+      "Online Sowda — onlaýn söwda platformasy. Smartfonlar, noutbuklar, audio enjamlary we aksessuarlary eltip bermek hyzmaty bilen.",
     locale: "tk_TM",
   },
 };
@@ -59,9 +59,15 @@ export default function Seo({
 
       <title>{fullTitle}</title>
 
+      {/* Favicon */}
+      <link rel="icon" href="/apple-touch-icon.png" sizes="any" />
+
       <meta name="description" content={finalDescription} />
 
-      {noindex && <meta name="robots" content="noindex, nofollow" />}
+      <meta
+        name="robots"
+        content={noindex ? "noindex, nofollow" : "index, follow"}
+      />
 
       <link rel="canonical" href={url} />
 

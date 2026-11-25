@@ -8,7 +8,7 @@ import { useCart } from "../pages/cart/hooks";
 import { useCategories } from "../pages/categories/hooks";
 
 import MegaMenu from "./MegaMenu";
-
+import logo from "../assets/logo.png";
 export default function Header() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -100,11 +100,23 @@ export default function Header() {
         {/* Main header row */}
         <div className="flex min-h-[64px] items-center justify-between gap-2 sm:min-h-[72px] sm:gap-4">
           {/* Logo */}
-          <Link
+          {/* <Link
             to="/"
             className="shrink-0 text-xl font-extrabold tracking-tight text-primary sm:text-2xl"
           >
             TECHSTORE
+          </Link> */}
+
+          <Link
+            to="/"
+            aria-label="Online Sowda - Home"
+            className="flex shrink-0 items-center"
+          >
+            <img
+              src={logo}
+              alt="Online Sowda"
+              className="h-9 w-auto max-w-[125px] object-contain sm:h-11 sm:max-w-[160px] lg:h-12 lg:max-w-[180px]"
+            />
           </Link>
 
           {/* Desktop catalog */}

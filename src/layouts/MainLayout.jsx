@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Header from "../components/Header";
 import LoginModal from "../components/LoginModal";
 import CartDrawer from "../components/CartDrawer";
+import whiteLogo from "../assets/white.png";
 
 export default function MainLayout() {
   const { t, i18n } = useTranslation();
@@ -28,9 +29,17 @@ export default function MainLayout() {
         <div className="container-main py-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <div className="text-xl font-extrabold text-white mb-3">
-              <span className="text-blue-400">TECH</span>STORE
-            </div>
+            <Link
+              to="/"
+              aria-label="Online Sowda - Home"
+              className="inline-flex items-center mb-4"
+            >
+              <img
+                src={whiteLogo}
+                alt="Online Sowda"
+                className="h-10 sm:h-12 w-auto max-w-[180px] object-contain"
+              />
+            </Link>
 
             <p className="text-sm leading-relaxed">{t("footer.description")}</p>
           </div>
@@ -92,7 +101,7 @@ export default function MainLayout() {
 
         {/* Copyright */}
         <div className="border-t border-slate-800 text-center text-xs text-slate-500 py-4">
-          © {new Date().getFullYear()} TechStore. {t("footer.rights")}
+          © {new Date().getFullYear()} Online Sowda. {t("footer.rights")}
         </div>
       </footer>
 
