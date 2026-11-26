@@ -509,7 +509,7 @@ function ProductListingCard({ product, language, t }) {
     <div className="min-w-0">
       <ProductCard product={product} />
 
-      {hasVariants && (
+      {/* {hasVariants && (
         <div className="-mt-1 rounded-b-xl border border-slate-200 border-t-0 bg-white px-3 pb-3">
           <button
             type="button"
@@ -541,7 +541,7 @@ function ProductListingCard({ product, language, t }) {
             <ProductVariants product={product} language={language} />
           )}
         </div>
-      )}
+      )} */}
     </div>
   );
 }
