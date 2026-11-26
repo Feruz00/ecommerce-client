@@ -57,11 +57,91 @@ function getInitialAttributes(params) {
   return initial;
 }
 
+function CategoryTreeItem({
+  category,
+  language,
+  selectedCats,
+  toggleCat,
+  expanded,
+  toggleExpand,
+  level = 0,
+}) {
+  const children = category.children || [];
+  const hasChildren = children.length > 0;
+  const isExpanded = expanded.includes(String(category.id));
+  const isSelected = selectedCats.includes(String(category.id));
+
+  return (
+    <div>
+      <div
+        className="flex min-w-0 items-center gap-2 py-1.5"
+        style={{ paddingLeft: `${level * 16}px` }}
+      >
+        {/* Expand button */}
+        {hasChildren ? (
+          <button
+            type="button"
+            onClick={() => toggleExpand(category.id)}
+            className="flex h-6 w-6 shrink-0 items-center justify-center text-slate-400 hover:text-slate-700"
+          >
+            <span
+              className={`text-lg leading-none transition-transform duration-200 ${
+                isExpanded ? "rotate-90" : ""
+              }`}
+            >
+              ›
+            </span>
+          </button>
+        ) : (
+          <span className="w-6 shrink-0" />
+        )}
+
+        {/* Checkbox */}
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => toggleCat(category.id)}
+          className="h-4 w-4 shrink-0 cursor-pointer rounded border-slate-300 text-primary focus:ring-primary"
+        />
+
+        {/* Category name */}
+        <button
+          type="button"
+          onClick={() => toggleCat(category.id)}
+          className={`min-w-0 break-words text-left text-sm transition-colors hover:text-primary ${
+            isSelected ? "font-semibold text-primary" : "text-slate-600"
+          }`}
+        >
+          {getLocalizedValue(category, language)}
+        </button>
+      </div>
+
+      {/* Children */}
+      {hasChildren && isExpanded && (
+        <div>
+          {children.map((child) => (
+            <CategoryTreeItem
+              key={child.id}
+              category={child}
+              language={language}
+              selectedCats={selectedCats}
+              toggleCat={toggleCat}
+              expanded={expanded}
+              toggleExpand={toggleExpand}
+              level={level + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* -------------------------------------------------------
    Component
 ------------------------------------------------------- */
 
-export default function FiltersSidebar({ categories = [] }) {
+export default function FiltersSidebar({ categories = [], onApply }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
@@ -73,7 +153,17 @@ export default function FiltersSidebar({ categories = [] }) {
     () => categories.filter((category) => !category.parent_id),
     [categories],
   );
+  const [expandedCategories, setExpandedCategories] = useState([]);
 
+  const toggleExpand = (id) => {
+    const value = String(id);
+
+    setExpandedCategories((previous) =>
+      previous.includes(value)
+        ? previous.filter((item) => item !== value)
+        : [...previous, value],
+    );
+  };
   // Attribute facets
   const { data: facetsData } = useQuery({
     queryKey: ["facets"],
@@ -162,6 +252,7 @@ export default function FiltersSidebar({ categories = [] }) {
     });
 
     navigate(`/products?${query.toString()}`);
+    onApply?.();
   };
 
   // Reset filters.
@@ -207,29 +298,24 @@ export default function FiltersSidebar({ categories = [] }) {
       </div>
 
       {/* Categories */}
+      {/* Categories */}
       <div className="mb-5 border-b border-slate-200 pb-5 sm:mb-6">
         <h3 className="mb-3 text-sm font-semibold text-slate-800">
           {t("filters.category")}
         </h3>
 
         {roots.length ? (
-          <div className="space-y-3">
+          <div className="space-y-1">
             {roots.map((category) => (
-              <label
+              <CategoryTreeItem
                 key={category.id}
-                className="flex min-w-0 cursor-pointer items-start gap-2 text-sm text-slate-600 transition-colors hover:text-primary"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedCats.includes(String(category.id))}
-                  onChange={() => toggleCat(category.id)}
-                  className="mt-0.5 shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
-                />
-
-                <span className="min-w-0 break-words">
-                  {getLocalizedValue(category, language)}
-                </span>
-              </label>
+                category={category}
+                language={language}
+                selectedCats={selectedCats}
+                toggleCat={toggleCat}
+                expanded={expandedCategories}
+                toggleExpand={toggleExpand}
+              />
             ))}
           </div>
         ) : (

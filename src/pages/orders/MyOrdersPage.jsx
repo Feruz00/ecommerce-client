@@ -31,10 +31,10 @@ const STATUS_STYLES = {
 
 const STATUSES = [
   "all",
-  "pending",
+  // "pending",
   "confirmed",
   "processing",
-  "shipped",
+  // "shipped",
   "delivered",
   "cancelled",
 ];

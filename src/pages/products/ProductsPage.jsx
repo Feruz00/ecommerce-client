@@ -10,7 +10,7 @@ import { useProducts } from "./hooks";
 import { useCategories } from "../categories/hooks";
 import { useAddToCart } from "../cart/hooks";
 import { useUi } from "../../context/UiContext";
-
+import { SlidersHorizontal, X } from "lucide-react";
 /* -------------------------------------------------------
    Localization helpers
 ------------------------------------------------------- */
@@ -224,7 +224,6 @@ function ProductVariants({ product, language }) {
   const { t } = useTranslation();
   const addToCart = useAddToCart();
   const { openCart, openLogin } = useUi();
-
   const variants = useMemo(
     () => getActiveVariants(product),
     [product?.variants],
@@ -554,6 +553,7 @@ function ProductListingCard({ product, language, t }) {
 export default function ProductsPage() {
   const { t, i18n } = useTranslation();
   const [params, setParams] = useSearchParams();
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const language = (i18n.resolvedLanguage || i18n.language || "tm").split(
     "-",
@@ -630,8 +630,10 @@ export default function ProductsPage() {
         <span className="text-slate-800">{t("header.catalog")}</span>
       </div>
 
-      <section className="mb-16 grid grid-cols-1 gap-7 lg:grid-cols-[260px_1fr]">
-        <FiltersSidebar categories={categories} />
+      <section className="mb-16 grid grid-cols-1 gap-7 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="hidden lg:block">
+          <FiltersSidebar categories={categories} />
+        </aside>
 
         <div className="min-w-0">
           {/* Heading and sorting */}
@@ -668,6 +670,42 @@ export default function ProductsPage() {
             </select>
           </div>
 
+          <div className="flex w-full gap-2 sm:w-auto">
+            {/* Mobile filter button */}
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(true)}
+              className="
+            inline-flex min-h-10 flex-1 items-center
+            justify-center gap-2 rounded-lg
+            border border-slate-200 bg-white px-3 py-2
+            text-sm font-medium text-slate-700
+            transition hover:border-primary hover:text-primary
+            lg:hidden sm:flex-none
+          "
+            >
+              <SlidersHorizontal size={16} />
+              {t("filters.title")}
+            </button>
+
+            {/* Sorting */}
+            <select
+              className="
+            min-h-10 min-w-0 flex-1 rounded-lg
+            border border-slate-200 bg-white px-3 py-2
+            text-sm outline-none focus:border-primary
+            sm:flex-none
+          "
+              value={query.sort}
+              onChange={(event) => setSort(event.target.value)}
+              aria-label={t("products.sort")}
+            >
+              <option value="created_at">{t("products.sortNewest")}</option>
+              <option value="price">{t("products.sortPriceAsc")}</option>
+              <option value="price_desc">{t("products.sortPriceDesc")}</option>
+              <option value="sold_count">{t("products.sortPopular")}</option>
+            </select>
+          </div>
           {/* Loading */}
           {isLoading ? (
             <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
@@ -748,6 +786,59 @@ export default function ProductsPage() {
           )}
         </div>
       </section>
+      {filtersOpen && (
+        <div className="fixed inset-0 z-[100] lg:hidden">
+          {/* Overlay */}
+          <button
+            type="button"
+            aria-label={t("common.close")}
+            onClick={() => setFiltersOpen(false)}
+            className="absolute inset-0 bg-black/50"
+          />
+
+          {/* Drawer */}
+          <div
+            className="
+      absolute inset-y-0 left-0 flex
+      w-[min(88%,360px)] flex-col
+      overflow-hidden bg-white shadow-2xl
+    "
+          >
+            {/* Header */}
+            <div
+              className="
+        flex items-center justify-between
+        border-b border-slate-100 px-4 py-4
+      "
+            >
+              <h3 className="text-base font-bold text-slate-900">
+                {t("filters.title")}
+              </h3>
+
+              <button
+                type="button"
+                aria-label={t("common.close")}
+                onClick={() => setFiltersOpen(false)}
+                className="
+            flex h-9 w-9 items-center justify-center
+            rounded-lg text-slate-500
+            transition hover:bg-slate-100 hover:text-slate-900
+          "
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Filter content */}
+            <div className="min-h-0 flex-1 overflow-y-auto p-4">
+              <FiltersSidebar
+                categories={categories}
+                onApply={() => setFiltersOpen(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

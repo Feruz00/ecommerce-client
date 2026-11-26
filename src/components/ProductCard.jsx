@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { ShoppingCart } from "lucide-react";
 
 import { useUi } from "../context/UiContext";
 import { useAddToCart } from "../pages/cart/hooks";
@@ -40,7 +41,6 @@ function getDefaultVariant(product) {
       variant.status !== "inactive",
   );
 
-  // Prefer the first available variant.
   return (
     activeVariants.find((variant) => Number(variant.quantity || 0) > 0) || null
   );
@@ -92,9 +92,7 @@ export default function ProductCard({ product }) {
     "";
 
   const variants = Array.isArray(product.variants) ? product.variants : [];
-
   const hasVariants = variants.length > 0;
-
   const defaultVariant = hasVariants ? getDefaultVariant(product) : null;
 
   const stock = hasVariants
@@ -157,45 +155,55 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col relative transition-all hover:-translate-y-0.5 hover:shadow-lift group">
+    <div className="group relative flex min-w-0 flex-col rounded-lg border border-slate-200 bg-white p-2 transition-all hover:-translate-y-0.5 hover:shadow-lift sm:rounded-xl sm:p-4">
+      {/* Discount */}
       {discount ? (
-        <span className="absolute top-3 left-3 z-10 bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-md">
+        <span className="absolute left-2 top-2 z-10 rounded-md bg-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white sm:left-3 sm:top-3 sm:px-2 sm:text-[11px]">
           -{discount}%
         </span>
       ) : null}
 
       <Link
         to={`/products/${product.slug || product.id}`}
-        className="flex flex-col flex-1 min-w-0"
+        className="flex min-w-0 flex-1 flex-col"
       >
-        <div className="h-40 bg-slate-100 rounded-lg flex items-center justify-center mb-3.5 overflow-hidden">
+        {/* Image */}
+        <div className="mb-2 flex h-28 w-full items-center justify-center overflow-hidden rounded-md bg-slate-100 sm:mb-3.5 sm:h-40 sm:rounded-lg">
           {image ? (
             <img
               src={image}
               alt={name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+              className="h-full w-full object-contain p-1 transition-transform duration-300 group-hover:scale-105 sm:p-2"
             />
           ) : (
-            <span className="text-5xl">📦</span>
+            <span className="text-3xl sm:text-5xl">📦</span>
           )}
         </div>
 
-        <div className="text-xs text-slate-500 mb-1">{catName}</div>
+        {/* Category */}
+        {catName && (
+          <div className="mb-1 line-clamp-1 text-[9px] text-slate-500 sm:text-xs">
+            {catName}
+          </div>
+        )}
 
-        <div className="text-[15px] font-semibold mb-3 flex-1 line-clamp-2 leading-snug">
+        {/* Name */}
+        <div className="mb-2 line-clamp-2 min-h-[32px] break-words text-xs font-semibold leading-snug text-slate-800 sm:mb-3 sm:min-h-[42px] sm:text-[15px]">
           {name}
         </div>
       </Link>
 
-      <div className="flex items-center justify-between mt-auto gap-2">
-        <div className="flex flex-col min-w-0">
+      {/* Price and button */}
+      <div className="mt-auto flex min-w-0 items-center justify-between gap-1.5 sm:gap-2">
+        <div className="flex min-w-0 flex-col">
           {compare && compare > price ? (
-            <span className="text-xs text-slate-400 line-through">
+            <span className="truncate text-[9px] text-slate-400 line-through sm:text-xs">
               {formatPrice(compare, language)}
             </span>
           ) : null}
 
-          <span className="text-lg font-bold truncate">
+          <span className="truncate text-xs font-bold text-slate-900 sm:text-lg">
             {formatPrice(price, language)}
           </span>
         </div>
@@ -204,18 +212,31 @@ export default function ProductCard({ product }) {
           type="button"
           onClick={handleAddToCart}
           disabled={!canAddToCart}
+          title={stock <= 0 ? t("product.outOfStock") : t("product.addToCart")}
+          aria-label={t("product.addToCart")}
           className="
-            shrink-0 bg-primary hover:bg-primary-hover
-            text-white px-3.5 py-2 rounded-lg
-            text-[13px] font-semibold transition-colors
+            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+            bg-primary text-white transition-colors hover:bg-primary-hover
             disabled:cursor-not-allowed disabled:opacity-50
+            sm:h-auto sm:w-auto sm:px-3.5 sm:py-2
           "
         >
-          {isPending
-            ? t("common.loading")
-            : stock <= 0
-              ? t("product.outOfStock")
-              : t("product.addToCart")}
+          {isPending ? (
+            <span className="text-[10px] sm:text-[13px]">
+              {t("common.loading")}
+            </span>
+          ) : stock <= 0 ? (
+            <span className="hidden text-[13px] sm:inline">
+              {t("product.outOfStock")}
+            </span>
+          ) : (
+            <>
+              <ShoppingCart size={15} className="sm:hidden" />
+              <span className="hidden text-[13px] font-semibold sm:inline">
+                {t("product.addToCart")}
+              </span>
+            </>
+          )}
         </button>
       </div>
     </div>
