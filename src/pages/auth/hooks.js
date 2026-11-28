@@ -16,7 +16,7 @@ export const useLogin = () => {
     onSuccess: (d) => {
       qc.setQueryData(["me"], d);
       if (d?.data?.user?.role === "admin") {
-        window.location.href = "/admin";
+        window.location.href = "/v4/admin";
       } else {
         nav("/");
       }
